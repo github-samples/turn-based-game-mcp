@@ -78,8 +78,11 @@ export class TicTacToeGame implements Game<TicTacToeGameState, TicTacToeMove> {
       throw new Error('Invalid move');
     }
 
+    const row = Number(move.row);
+    const col = Number(move.col);
+
     const newBoard = gameState.board.map(row => [...row]);
-    newBoard[move.row][move.col] = gameState.playerSymbols[playerId];
+    newBoard[row][col] = gameState.playerSymbols[playerId];
 
     // Switch to next player
     const nextPlayerId = gameState.players.find(p => p.id !== playerId)?.id || 'player1';
