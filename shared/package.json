@@ -1,0 +1,28 @@
+{
+  "name": "@turn-based-mcp/shared",
+  "version": "1.0.0",
+  "description": "Shared types and game logic for turn-based games",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc && fix-esm-import-path dist",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "type-check": "tsc --noEmit",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "fix-esm-import-path": "^1.10.3",
+    "jest": "^30.0.5",
+    "ts-jest": "^29.4.0",
+    "typescript": "^5.5.0"
+  },
+  "dependencies": {
+    "@types/sqlite3": "^5.1.0",
+    "sqlite3": "^5.1.7"
+  }
+}

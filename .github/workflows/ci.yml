@@ -1,0 +1,53 @@
+name: "CI"
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20, 22]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build shared package
+        run: npm run build --workspace=shared
+
+      - name: Type check all workspaces
+        run: npm run type-check
+
+      - name: Build web package
+        run: npm run build --workspace=web
+
+      - name: Build mcp-server package
+        run: npm run build --workspace=mcp-server
+
+      - name: Lint web package
+        run: npm run lint --workspace=web
+
+      # Future: Add test steps when tests are implemented
+      # - name: Run tests - shared
+      #   run: npm run test --workspace=shared
+      # 
+      # - name: Run tests - web
+      #   run: npm run test --workspace=web
+      # 
+      # - name: Run tests - mcp-server
+      #   run: npm run test --workspace=mcp-server

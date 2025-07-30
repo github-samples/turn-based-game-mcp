@@ -1,0 +1,15 @@
+{
+  "servers": {
+    "turn-based-games": {
+      "command": "node",
+      "args": ["dist/index.js"],
+      "cwd": "./mcp-server"
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest"
+      ]
+    }
+  }
+}

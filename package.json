@@ -1,0 +1,35 @@
+{
+  "name": "turn-based-mcp",
+  "version": "1.0.0",
+  "description": "Turn-based games platform with NextJS frontend and MCP server AI opponent",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "shared",
+    "web",
+    "mcp-server"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=web",
+    "dev:mcp": "npm run dev --workspace=mcp-server",
+    "build": "npm run build --workspace=shared && npm run build --workspace=web && npm run build --workspace=mcp-server",
+    "type-check": "npm run type-check --workspace=shared && npm run type-check --workspace=web && npm run type-check --workspace=mcp-server",
+    "clean": "npm run clean --workspace=shared && npm run clean --workspace=web && npm run clean --workspace=mcp-server",
+    "test": "npm run test --workspace=shared && npm run test --workspace=web && npm run test --workspace=mcp-server",
+    "test:watch": "npm run test:watch --workspace=shared",
+    "test:coverage": "npm run test:coverage --workspace=shared && npm run test:coverage --workspace=web && npm run test:coverage --workspace=mcp-server"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.1.0",
+    "jest": "^30.0.5",
+    "ts-jest": "^29.4.0",
+    "typescript": "^5.5.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
