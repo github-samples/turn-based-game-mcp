@@ -20,7 +20,7 @@
     "test:coverage": "npm run test:coverage --workspace=shared && npm run test:coverage --workspace=web && npm run test:coverage --workspace=mcp-server"
   },
   "devDependencies": {
-    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/jest-dom": "^6.6.4",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
     "@types/jest": "^30.0.0",
