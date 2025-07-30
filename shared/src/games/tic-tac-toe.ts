@@ -41,8 +41,15 @@ export class TicTacToeGame implements Game<TicTacToeGameState, TicTacToeMove> {
       return false;
     }
     
-    // Check if the move is within bounds
-    if (row < 0 || row >= 3 || col < 0 || col >= 3) {
+    // Check that row and col are numbers, integers, and not special property names
+    if (
+      typeof row !== 'number' ||
+      typeof col !== 'number' ||
+      !Number.isInteger(row) ||
+      !Number.isInteger(col) ||
+      row < 0 || row >= 3 ||
+      col < 0 || col >= 3
+    ) {
       return false;
     }
     
