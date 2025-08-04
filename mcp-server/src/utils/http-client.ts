@@ -44,7 +44,8 @@ export async function createGameViaAPI(
   gameType: string, 
   playerName: string, 
   gameId?: string, 
-  aiDifficulty?: string
+  aiDifficulty?: string,
+  gameSpecificOptions?: Record<string, any>
 ) {
   try {
     const data: any = { playerName }
@@ -53,6 +54,10 @@ export async function createGameViaAPI(
     }
     if (aiDifficulty) {
       data.aiDifficulty = aiDifficulty
+    }
+    // Merge any game-specific options
+    if (gameSpecificOptions) {
+      Object.assign(data, gameSpecificOptions)
     }
     return await httpPost(`${WEB_API_BASE}/api/games/${gameType}`, data)
   } catch (error) {

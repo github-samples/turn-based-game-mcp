@@ -3,6 +3,7 @@
  */
 
 import { playGame, analyzeGame, waitForPlayerMove, createGame } from './game-operations.js'
+import { elicitGameCreationPreferences } from './elicitation-handlers.js'
 
 export const TOOL_DEFINITIONS = [
   {
@@ -127,12 +128,35 @@ export const TOOL_DEFINITIONS = [
       required: [],
     },
   },
+  {
+    name: 'create_tic_tac_toe_game_interactive',
+    description: 'Create a new Tic-Tac-Toe game with interactive setup. This will ask you for preferences like difficulty and symbol choice.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        gameId: {
+          type: 'string',
+          description: 'Optional custom game ID. If not provided, a random UUID will be generated.',
+        },
+      },
+      required: [],
+    },
+  },
+  {
+    name: 'create_rock_paper_scissors_game_interactive',
+    description: 'Create a new Rock Paper Scissors game with interactive setup. This will ask you for preferences like difficulty and number of rounds.',
+    inputSchema: {
+      type: 'object',
+      properties: {},
+      required: [],
+    },
+  },
 ]
 
 /**
  * Handle tool execution
  */
-export async function handleToolCall(name: string, args: any) {
+export async function handleToolCall(name: string, args: any, server?: any) {
   try {
     switch (name) {
       case 'play_tic_tac_toe':
@@ -189,10 +213,78 @@ export async function handleToolCall(name: string, args: any) {
         } = args
         return await createGame('rock-paper-scissors', rpsPlayerName, undefined, rpsAiDifficulty)
 
+      case 'create_tic_tac_toe_game_interactive':
+        const { gameId: interactiveTTTGameId } = args
+        return await createGameInteractive('tic-tac-toe', interactiveTTTGameId, server)
+
+      case 'create_rock_paper_scissors_game_interactive':
+        return await createGameInteractive('rock-paper-scissors', undefined, server)
+
       default:
         throw new Error(`Unknown tool: ${name}`)
     }
   } catch (error) {
     throw error
   }
+}
+
+/**
+ * Create game with interactive elicitation
+ */
+async function createGameInteractive(gameType: string, gameId?: string, server?: any) {
+  if (!server) {
+    // Fallback to regular creation if no server for elicitation
+    return await createGame(gameType, 'Player', gameId, 'medium')
+  }
+
+  try {
+    // Elicit user preferences
+    const elicitationResult = await elicitGameCreationPreferences(server, gameType, {
+      gameId,
+      playerName: 'Player',
+      aiDifficulty: 'medium'
+    })
+
+    if (elicitationResult.action === 'decline' || elicitationResult.action === 'cancel') {
+      return {
+        gameId: null,
+        gameType,
+        message: `🚫 Game creation ${elicitationResult.action}d by user`,
+        status: 'cancelled',
+        action: elicitationResult.action
+      }
+    }
+
+    if (elicitationResult.action === 'accept' && elicitationResult.content) {
+      const { difficulty, playerName, playerSymbol, maxRounds } = elicitationResult.content
+      
+      // Prepare game creation parameters
+      const finalPlayerName = playerName || 'Player'
+      const finalDifficulty = difficulty || 'medium'
+      
+      // Create the game with elicited preferences
+      const gameResult = await createGame(gameType, finalPlayerName, gameId, finalDifficulty)
+      
+      // Add elicitation information to the response
+      gameResult.elicitation = {
+        preferences: elicitationResult.content,
+        message: '🎮 Game created with your custom preferences!'
+      }
+      
+      // Add game-specific messages
+      if (gameType === 'tic-tac-toe' && playerSymbol) {
+        gameResult.message += ` You are playing as ${playerSymbol}.`
+      }
+      if (gameType === 'rock-paper-scissors' && maxRounds) {
+        gameResult.message += ` Playing ${maxRounds} rounds.`
+      }
+      
+      return gameResult
+    }
+  } catch (error) {
+    console.warn('Interactive game creation failed, falling back to defaults:', error)
+  }
+  
+  // Fallback to regular creation
+  return await createGame(gameType, 'Player', gameId, 'medium')
 }

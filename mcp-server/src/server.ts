@@ -26,6 +26,7 @@ const server = new Server(
       tools: {},
       resources: {},
       prompts: {},
+      sampling: {},
     },
   }
 )
@@ -70,7 +71,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   // conversational flow between moves.
 
   try {
-    const result = await handleToolCall(name, args)
+    const result = await handleToolCall(name, args, server)
     return {
       content: [
         {
