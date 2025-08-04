@@ -26,7 +26,7 @@ const server = new Server(
       tools: {},
       resources: {},
       prompts: {},
-      sampling: {},
+      elicitation: {},
     },
   }
 )

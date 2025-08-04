@@ -103,6 +103,12 @@ export const TOOL_DEFINITIONS = [
           description: 'AI difficulty level',
           default: 'medium',
         },
+        playerSymbol: {
+          type: 'string',
+          enum: ['X', 'O'],
+          description: 'Your symbol: X (goes first) or O (goes second)',
+          default: 'X',
+        },
       },
       required: [],
     },
@@ -202,9 +208,12 @@ export async function handleToolCall(name: string, args: any, server?: any) {
         const { 
           playerName: ticTacToePlayerName = 'Player', 
           gameId: ticTacToeNewGameId, 
-          aiDifficulty: ticTacToeAiDifficulty = 'medium' 
+          aiDifficulty: ticTacToeAiDifficulty = 'medium',
+          playerSymbol: ticTacToePlayerSymbol = 'X'
         } = args
-        return await createGame('tic-tac-toe', ticTacToePlayerName, ticTacToeNewGameId, ticTacToeAiDifficulty)
+        
+        const ticTacToeGameOptions = ticTacToePlayerSymbol ? { playerSymbol: ticTacToePlayerSymbol } : undefined
+        return await createGame('tic-tac-toe', ticTacToePlayerName, ticTacToeNewGameId, ticTacToeAiDifficulty, ticTacToeGameOptions)
 
       case 'create_rock_paper_scissors_game':
         const { 
@@ -262,8 +271,17 @@ async function createGameInteractive(gameType: string, gameId?: string, server?:
       const finalPlayerName = playerName || 'Player'
       const finalDifficulty = difficulty || 'medium'
       
+      // Prepare game-specific options
+      const gameSpecificOptions: Record<string, any> = {}
+      if (gameType === 'tic-tac-toe' && playerSymbol) {
+        gameSpecificOptions.playerSymbol = playerSymbol
+      }
+      if (gameType === 'rock-paper-scissors' && maxRounds) {
+        gameSpecificOptions.maxRounds = maxRounds
+      }
+      
       // Create the game with elicited preferences
-      const gameResult = await createGame(gameType, finalPlayerName, gameId, finalDifficulty)
+      const gameResult = await createGame(gameType, finalPlayerName, gameId, finalDifficulty, gameSpecificOptions)
       
       // Add elicitation information to the response
       gameResult.elicitation = {
@@ -274,6 +292,11 @@ async function createGameInteractive(gameType: string, gameId?: string, server?:
       // Add game-specific messages
       if (gameType === 'tic-tac-toe' && playerSymbol) {
         gameResult.message += ` You are playing as ${playerSymbol}.`
+        if (playerSymbol === 'X') {
+          gameResult.message += ' You go first!'
+        } else {
+          gameResult.message += ' AI goes first!'
+        }
       }
       if (gameType === 'rock-paper-scissors' && maxRounds) {
         gameResult.message += ` Playing ${maxRounds} rounds.`

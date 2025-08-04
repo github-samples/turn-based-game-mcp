@@ -189,32 +189,53 @@ export class TicTacToeGame implements Game<TicTacToeGameState, TicTacToeMove> {
   /**
    * Creates the initial game state for a new tic-tac-toe game
    * 
-   * @param players - Array of exactly 2 players (first player gets X, second gets O)
-   * @returns Initial TicTacToeGameState with empty board and first player's turn
+   * @param players - Array of exactly 2 players
+   * @param options - Optional game configuration
+   * @returns Initial TicTacToeGameState with empty board
    * 
    * @description
    * Sets up a new game with:
    * - Empty 3x3 board (all cells null)
-   * - Player 1 assigned 'X' symbol and goes first
-   * - Player 2 assigned 'O' symbol
+   * - Player symbol assignment (X always goes first, O goes second)
+   * - Configurable turn order (who gets X and goes first)
    * - Game status set to 'playing'
    * - Timestamps initialized to current time
    */
-  getInitialState(players: Player[]): TicTacToeGameState {
+  getInitialState(players: Player[], options?: { firstPlayerId?: string }): TicTacToeGameState {
     const board: Board = [
       [null, null, null],
       [null, null, null],
       [null, null, null]
     ];
 
+    // Determine who gets X (goes first) and who gets O (goes second)
+    let firstPlayer: Player;
+    let secondPlayer: Player;
+    
+    if (options?.firstPlayerId) {
+      const firstPlayerIndex = players.findIndex(p => p.id === options.firstPlayerId);
+      if (firstPlayerIndex !== -1) {
+        firstPlayer = players[firstPlayerIndex];
+        secondPlayer = players[1 - firstPlayerIndex];
+      } else {
+        // Fallback to default order if specified player not found
+        firstPlayer = players[0];
+        secondPlayer = players[1];
+      }
+    } else {
+      // Default: first player in array goes first
+      firstPlayer = players[0];
+      secondPlayer = players[1];
+    }
+
     const playerSymbols: Record<string, 'X' | 'O'> = {};
-    playerSymbols[players[0].id] = 'X';
-    playerSymbols[players[1].id] = 'O';
+    playerSymbols[firstPlayer.id] = 'X';
+    playerSymbols[secondPlayer.id] = 'O';
 
     return {
       id: crypto.randomUUID(),
       players,
-      currentPlayerId: players[0].id,
+      currentPlayerId: firstPlayer.id,
       status: 'playing',
       createdAt: new Date(),
       updatedAt: new Date(),

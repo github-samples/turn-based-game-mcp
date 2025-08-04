@@ -221,7 +221,7 @@ export class RockPaperScissorsGame implements Game<RPSGameState, RPSMove> {
    * - Game status set to 'playing'
    * - Current round set to 0
    */
-  getInitialState(players: Player[]): RPSGameState {
+  getInitialState(players: Player[], options?: any): RPSGameState {
     const maxRounds = 3; // Best of 3
     const rounds = Array.from({ length: maxRounds }, () => ({}));
     

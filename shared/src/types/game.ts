@@ -36,7 +36,7 @@ export interface Game<TGameState extends BaseGameState, TMove> {
   applyMove(gameState: TGameState, move: TMove, playerId: PlayerId): TGameState;
   checkGameEnd(gameState: TGameState): GameResult | null;
   getValidMoves(gameState: TGameState, playerId: PlayerId): TMove[];
-  getInitialState(players: Player[]): TGameState;
+  getInitialState(players: Player[], options?: any): TGameState;
 }
 
 export type GameType = 'tic-tac-toe' | 'rock-paper-scissors';

@@ -30,7 +30,8 @@ export async function elicitGameCreationPreferences(
           type: "string",
           enum: ["X", "O"],
           title: "Your Symbol",
-          description: "Do you want to be X (goes first) or O (goes second)?"
+          description: "Do you want to be X (goes first) or O (goes second)?",
+          default: "X"
         },
         playerName: {
           type: "string",
