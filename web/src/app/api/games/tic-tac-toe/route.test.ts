@@ -1,24 +1,27 @@
+import { vi } from 'vitest'
 import { NextRequest } from 'next/server';
 import type { GameSession, TicTacToeGameState } from '@turn-based-mcp/shared';
 
-// Mock dependencies BEFORE importing the route - use factory functions for proper setup
-jest.mock('@turn-based-mcp/shared', () => {
-  const mockGame = {
-    getInitialState: jest.fn(),
-    validateMove: jest.fn(),
-    applyMove: jest.fn(),
-    checkGameEnd: jest.fn(),
-    getValidMoves: jest.fn()
-  };
-  
-  return {
-    ...jest.requireActual('@turn-based-mcp/shared'),
-    TicTacToeGame: jest.fn(() => mockGame),
-    __mockGameInstance: mockGame
-  };
-});
+// Use vi.hoisted() to ensure the mock object is available during hoisting
+const mockGame = vi.hoisted(() => ({
+  getInitialState: vi.fn(),
+  validateMove: vi.fn(),
+  applyMove: vi.fn(),
+  checkGameEnd: vi.fn(),
+  getValidMoves: vi.fn()
+}));
 
-jest.mock('../../../../lib/game-storage');
+// Mock dependencies BEFORE importing the route
+vi.mock('@turn-based-mcp/shared', () => ({
+  ...vi.importActual('@turn-based-mcp/shared'),
+  TicTacToeGame: vi.fn().mockImplementation(() => mockGame)
+}));
+
+vi.mock('../../../../lib/game-storage', () => ({
+  getTicTacToeGame: vi.fn(),
+  setTicTacToeGame: vi.fn(),
+  getAllTicTacToeGames: vi.fn()
+}));
 
 // Import the mocked classes
 import { TicTacToeGame } from '@turn-based-mcp/shared';
@@ -27,16 +30,7 @@ import * as gameStorage from '../../../../lib/game-storage';
 // Now import the route AFTER the mocks are set up
 import { GET, POST } from './route';
 
-const mockGameStorage = gameStorage as jest.Mocked<typeof gameStorage>;
-
-// Get access to the mock game instance from the mocked module
-const mockGame = (TicTacToeGame as jest.MockedClass<typeof TicTacToeGame>).mock.results[0]?.value || {
-  getInitialState: jest.fn(),
-  validateMove: jest.fn(),
-  applyMove: jest.fn(),
-  checkGameEnd: jest.fn(),
-  getValidMoves: jest.fn()
-};
+const mockGameStorage = vi.mocked(gameStorage);
 
 describe('/api/games/tic-tac-toe', () => {
   // Create the mock game state at module level
@@ -68,13 +62,17 @@ describe('/api/games/tic-tac-toe', () => {
   };
 
   beforeEach(() => {
-    // Don't clear all mocks as it clears the return values
-    // Instead, just reset the call history
+    // Reset mock implementations and call history
     mockGame.getInitialState.mockClear();
     mockGame.validateMove.mockClear();
     mockGame.applyMove.mockClear();
     mockGame.checkGameEnd.mockClear();
     mockGame.getValidMoves.mockClear();
+    
+    // Reset storage mocks
+    mockGameStorage.getTicTacToeGame.mockClear();
+    mockGameStorage.setTicTacToeGame.mockClear();
+    mockGameStorage.getAllTicTacToeGames.mockClear();
     
     // Reset mock implementations with defaults
     mockGame.getInitialState.mockReturnValue(mockGameState);
@@ -100,7 +98,7 @@ describe('/api/games/tic-tac-toe', () => {
       expect(mockGame.getInitialState).toHaveBeenCalledWith([
         { id: 'player1', name: 'TestPlayer', isAI: false },
         { id: 'ai', name: 'AI', isAI: true }
-      ]);
+      ], { firstPlayerId: 'player1' });
       expect(mockGameStorage.setTicTacToeGame).toHaveBeenCalledWith(
         mockGameState.id,
         expect.objectContaining({
@@ -130,7 +128,7 @@ describe('/api/games/tic-tac-toe', () => {
       expect(mockGame.getInitialState).toHaveBeenCalledWith([
         { id: 'player1', name: 'Player', isAI: false },
         { id: 'ai', name: 'AI', isAI: true }
-      ]);
+      ], { firstPlayerId: 'player1' });
     });
 
     it('should handle empty request body', async () => {
@@ -147,13 +145,13 @@ describe('/api/games/tic-tac-toe', () => {
       expect(mockGame.getInitialState).toHaveBeenCalledWith([
         { id: 'player1', name: 'Player', isAI: false },
         { id: 'ai', name: 'AI', isAI: true }
-      ]);
+      ], { firstPlayerId: 'player1' });
     });
 
     it('should handle storage errors', async () => {
       const storageError = new Error('Storage failed');
       mockGameStorage.setTicTacToeGame.mockRejectedValue(storageError);
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       const request = new NextRequest('http://localhost:3000/api/games/tic-tac-toe', {
         method: 'POST',
@@ -171,7 +169,7 @@ describe('/api/games/tic-tac-toe', () => {
     });
 
     it('should handle JSON parsing errors', async () => {
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       const request = new NextRequest('http://localhost:3000/api/games/tic-tac-toe', {
         method: 'POST',

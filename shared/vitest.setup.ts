@@ -1,10 +1,11 @@
 /**
- * Jest setup for shared package tests
+ * Vitest setup for shared package tests
  * 
  * Sets up test database before all tests and cleans up after
  */
 
-const { setupTestDatabase, teardownTestDatabase } = require('./dist/testing/test-database')
+import { setupTestDatabase, teardownTestDatabase } from './dist/testing/test-database.js'
+import { beforeAll, afterAll } from 'vitest'
 
 // Setup test database before all tests
 beforeAll(async () => {

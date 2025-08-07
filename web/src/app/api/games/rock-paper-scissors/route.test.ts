@@ -1,24 +1,27 @@
+import { vi } from 'vitest'
 import { NextRequest } from 'next/server';
 import type { GameSession, RPSGameState } from '@turn-based-mcp/shared';
 
-// Mock dependencies BEFORE importing the route - use factory functions for proper setup
-jest.mock('@turn-based-mcp/shared', () => {
-  const mockGame = {
-    getInitialState: jest.fn(),
-    validateMove: jest.fn(),
-    applyMove: jest.fn(),
-    checkGameEnd: jest.fn(),
-    getValidMoves: jest.fn()
-  };
-  
-  return {
-    ...jest.requireActual('@turn-based-mcp/shared'),
-    RockPaperScissorsGame: jest.fn(() => mockGame),
-    __mockGameInstance: mockGame
-  };
-});
+// Use vi.hoisted() to ensure the mock object is available during hoisting
+const mockGame = vi.hoisted(() => ({
+  getInitialState: vi.fn(),
+  validateMove: vi.fn(),
+  applyMove: vi.fn(),
+  checkGameEnd: vi.fn(),
+  getValidMoves: vi.fn()
+}));
 
-jest.mock('../../../../lib/game-storage');
+// Mock dependencies BEFORE importing the route
+vi.mock('@turn-based-mcp/shared', () => ({
+  ...vi.importActual('@turn-based-mcp/shared'),
+  RockPaperScissorsGame: vi.fn().mockImplementation(() => mockGame)
+}));
+
+vi.mock('../../../../lib/game-storage', () => ({
+  getRPSGame: vi.fn(),
+  setRPSGame: vi.fn(),
+  getAllRPSGames: vi.fn()
+}));
 
 // Import the mocked classes
 import { RockPaperScissorsGame } from '@turn-based-mcp/shared';
@@ -27,16 +30,7 @@ import * as gameStorage from '../../../../lib/game-storage';
 // Now import the route AFTER the mocks are set up
 import { GET, POST } from './route';
 
-const mockGameStorage = gameStorage as jest.Mocked<typeof gameStorage>;
-
-// Get access to the mock game instance from the mocked module
-const mockGame = (RockPaperScissorsGame as jest.MockedClass<typeof RockPaperScissorsGame>).mock.results[0]?.value || {
-  getInitialState: jest.fn(),
-  validateMove: jest.fn(),
-  applyMove: jest.fn(),
-  checkGameEnd: jest.fn(),
-  getValidMoves: jest.fn()
-};
+const mockGameStorage = vi.mocked(gameStorage);
 
 describe('/api/games/rock-paper-scissors', () => {
   // Create the mock game state at module level
@@ -63,7 +57,7 @@ describe('/api/games/rock-paper-scissors', () => {
   let mockGameSession: GameSession<RPSGameState>;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     
     // Create fresh mock state for each test
     mockGameState = createMockGameState();
@@ -146,7 +140,7 @@ describe('/api/games/rock-paper-scissors', () => {
     it('should handle storage errors', async () => {
       const storageError = new Error('Storage failed');
       mockGameStorage.setRPSGame.mockRejectedValue(storageError);
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       const request = new NextRequest('http://localhost:3000/api/games/rock-paper-scissors', {
         method: 'POST',
@@ -164,7 +158,7 @@ describe('/api/games/rock-paper-scissors', () => {
     });
 
     it('should handle JSON parsing errors', async () => {
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       const request = new NextRequest('http://localhost:3000/api/games/rock-paper-scissors', {
         method: 'POST',

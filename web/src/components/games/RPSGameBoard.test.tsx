@@ -1,3 +1,4 @@
+import { vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react';
 import { RPSGameBoard } from './RPSGameBoard';
 import type { RPSGameState, RPSChoice } from '@turn-based-mcp/shared';
@@ -23,7 +24,7 @@ const createMockGameState = (overrides: Partial<RPSGameState> = {}): RPSGameStat
 });
 
 describe('RPSGameBoard', () => {
-  const mockOnMove = jest.fn();
+  const mockOnMove = vi.fn();
 
   beforeEach(() => {
     mockOnMove.mockClear();

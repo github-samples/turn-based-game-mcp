@@ -1,3 +1,4 @@
+import { vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { ErrorDisplay } from '../ui/ErrorDisplay'
 
@@ -34,7 +35,7 @@ describe('ErrorDisplay', () => {
   })
 
   it('should render dismiss button when onDismiss is provided', () => {
-    const mockOnDismiss = jest.fn()
+    const mockOnDismiss = vi.fn()
     render(<ErrorDisplay message={mockMessage} onDismiss={mockOnDismiss} />)
     
     const dismissButton = screen.getByLabelText('Dismiss error')

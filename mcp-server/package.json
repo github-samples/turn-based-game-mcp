@@ -10,19 +10,19 @@
     "start": "node dist/index.js",
     "clean": "rm -rf dist",
     "type-check": "tsc --noEmit",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:ui": "vitest --ui"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.17.0",
     "@turn-based-mcp/shared": "file:../shared"
   },
   "devDependencies": {
-    "@types/jest": "^30.0.0",
     "@types/node": "^24.1.0",
-    "jest": "^30.0.5",
-    "ts-jest": "^29.4.0",
-    "typescript": "^5.5.0"
+    "@vitest/ui": "^3.2.4",
+    "typescript": "^5.5.0",
+    "vitest": "^3.2.4"
   }
 }
