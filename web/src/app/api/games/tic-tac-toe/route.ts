@@ -8,7 +8,7 @@ const ticTacToeGame = new TicTacToeGame()
 
 export async function POST(request: NextRequest) {
   try {
-    const { playerName, gameId, aiDifficulty, playerSymbol } = await request.json()
+    const { playerName, gameId, difficulty, playerSymbol } = await request.json()
     
     const players: Player[] = [
       { id: 'player1', name: playerName || 'Player', isAI: false },
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
       gameState,
       gameType: 'tic-tac-toe',
       history: [],
-      aiDifficulty: aiDifficulty || 'medium'
+      difficulty: difficulty || 'medium'
     }
     
     await setTicTacToeGame(gameState.id, gameSession)

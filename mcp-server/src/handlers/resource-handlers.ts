@@ -109,7 +109,7 @@ export async function readResource(uri: string) {
                 createdAt: game.gameState?.createdAt,
                 updatedAt: game.gameState?.updatedAt,
                 playerCount: Object.keys(game.gameState?.players || {}).length,
-                aiDifficulty: game.aiDifficulty
+                difficulty: game.difficulty
               })),
               totalGames: games.length,
               timestamp: new Date().toISOString()

@@ -72,9 +72,39 @@ export async function elicitGameCreationPreferences(
     }
   }
 
-  const schema = schemas[gameType as keyof typeof schemas]
-  if (!schema) {
+  const baseSchema = schemas[gameType as keyof typeof schemas]
+  if (!baseSchema) {
     throw new Error(`No elicitation schema defined for game type: ${gameType}`)
+  }
+
+  // Filter out properties that are already provided
+  const filteredSchema: any = { ...baseSchema }
+  const filteredProperties: Record<string, any> = { ...baseSchema.properties }
+  const filteredRequired = [...(baseSchema.required || [])]
+
+  // Remove properties that already have values
+  if (existingArgs) {
+    Object.keys(existingArgs).forEach(key => {
+      if (existingArgs[key] !== undefined && existingArgs[key] !== null && existingArgs[key] !== '') {
+        delete filteredProperties[key]
+        // Remove from required array if present
+        const requiredIndex = filteredRequired.indexOf(key)
+        if (requiredIndex > -1) {
+          filteredRequired.splice(requiredIndex, 1)
+        }
+      }
+    })
+  }
+
+  filteredSchema.properties = filteredProperties
+  filteredSchema.required = filteredRequired
+
+  // If no properties remain to be elicited, skip elicitation
+  if (Object.keys(filteredProperties).length === 0) {
+    return {
+      action: "accept",
+      content: existingArgs || {}
+    }
   }
 
   const message = `Let's set up your ${gameType.replace('-', ' ')} game! 🎮\n\nI'll need a few preferences to customize your experience:`
@@ -82,8 +112,13 @@ export async function elicitGameCreationPreferences(
   try {
     const result = await server.elicitInput({
       message,
-      requestedSchema: schema
+      requestedSchema: filteredSchema
     })
+
+    // Merge the elicitation result with existing arguments
+    if (result.action === 'accept' && result.content) {
+      result.content = { ...existingArgs, ...result.content }
+    }
 
     return result
   } catch (error) {
@@ -92,10 +127,10 @@ export async function elicitGameCreationPreferences(
     return {
       action: "accept",
       content: {
-        difficulty: existingArgs?.aiDifficulty || DEFAULT_AI_DIFFICULTY,
+        difficulty: existingArgs?.difficulty || DEFAULT_AI_DIFFICULTY,
         playerName: existingArgs?.playerName || DEFAULT_PLAYER_NAME,
-        ...(gameType === 'rock-paper-scissors' && { maxRounds: 3 }),
-        ...(gameType === 'tic-tac-toe' && { playerSymbol: "X" })
+        ...(gameType === 'rock-paper-scissors' && { maxRounds: existingArgs?.maxRounds || 3 }),
+        ...(gameType === 'tic-tac-toe' && { playerSymbol: existingArgs?.playerSymbol || "X" })
       }
     }
   }
@@ -160,10 +195,10 @@ export async function elicitGameCompletionFeedback(
     gameType: string
     gameId: string
     result: 'win' | 'loss' | 'draw'
-    aiDifficulty: string
+    difficulty: string
   }
 ): Promise<ElicitationResult> {
-  const { gameType, result, aiDifficulty } = context
+  const { gameType, result, difficulty } = context
 
   const resultMessages = {
     win: "🎉 Congratulations! You won!",
@@ -179,7 +214,7 @@ export async function elicitGameCompletionFeedback(
         enum: ["too_easy", "just_right", "too_hard"],
         enumNames: ["Too Easy", "Just Right", "Too Hard"],
         title: "How was the difficulty?",
-        description: `The AI was set to ${aiDifficulty} difficulty`
+        description: `The AI was set to ${difficulty} difficulty`
       },
       playAgain: {
         type: "boolean",

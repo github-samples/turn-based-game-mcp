@@ -1,4 +1,4 @@
-import { vi } from 'vitest'
+import { vi, type MockedFunction } from 'vitest'
 import { GET } from './route'
 import { getAllRPSGames } from '../../../../../lib/game-storage'
 import type { GameSession } from '@turn-based-mcp/shared'
@@ -7,7 +7,7 @@ import type { RPSGameState } from '@turn-based-mcp/shared'
 // Mock the game storage
 vi.mock('../../../../../lib/game-storage')
 
-const mockGetAllRPSGames = getAllRPSGames as vi.MockedFunction<typeof getAllRPSGames>
+const mockGetAllRPSGames = getAllRPSGames as MockedFunction<typeof getAllRPSGames>
 
 describe('/api/games/rock-paper-scissors/mcp', () => {
   beforeEach(() => {

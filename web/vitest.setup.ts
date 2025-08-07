@@ -3,7 +3,7 @@ import { vi } from 'vitest'
 import '@testing-library/jest-dom'
 
 // Use shared test database setup
-import { setupStandardTestDatabase } from '@turn-based-mcp/shared'
+import { setupStandardTestDatabase } from '@turn-based-mcp/shared/dist/testing/vitest-setup.js'
 
 // Setup standard test database using shared utility
 setupStandardTestDatabase()
@@ -65,6 +65,28 @@ vi.mock('next/server', () => ({
 // Mock fetch globally
 global.fetch = vi.fn()
 
+// Suppress expected console errors during tests
+// These are typically from error handling scenarios that we're intentionally testing
+const originalConsoleError = console.error
+const suppressedConsoleError = (...args: any[]) => {
+  const message = args[0]
+  
+  if (typeof message === 'string') {
+    // Suppress expected error messages from API routes
+    if (
+      message.includes('Error creating game:') ||
+      message.includes('Error deleting game:') ||
+      message.includes('Error processing move:') ||
+      message.includes('Error fetching games for MCP:')
+    ) {
+      return // Suppress these expected errors
+    }
+  }
+  
+  // For all other errors, use the original console.error
+  originalConsoleError(...args)
+}
+
 // Mock console methods to reduce noise during tests
 global.console = {
   ...console,
@@ -72,5 +94,5 @@ global.console = {
   debug: vi.fn(),
   info: vi.fn(),
   warn: vi.fn(),
-  error: vi.fn(),
+  error: suppressedConsoleError,
 }

@@ -1,4 +1,3 @@
-import { vi } from 'vitest'
 import { render, screen } from '@testing-library/react';
 import { GameStatus } from './GameStatus';
 import type { BaseGameState, PlayerId } from '@turn-based-mcp/shared';

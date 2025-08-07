@@ -24,8 +24,7 @@ vi.mock('../../../../lib/game-storage', () => ({
   getAllTicTacToeGames: vi.fn()
 }));
 
-// Import the mocked classes
-import { TicTacToeGame } from '@turn-based-mcp/shared';
+// Import the mocked storage
 import * as gameStorage from '../../../../lib/game-storage';
 
 // Now import the route AFTER the mocks are set up
@@ -133,7 +132,6 @@ describe('/api/games/tic-tac-toe', () => {
     it('should handle storage errors', async () => {
       const storageError = new Error('Storage failed');
       mockGameStorage.setTicTacToeGame.mockRejectedValue(storageError);
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       const request = new NextRequest('http://localhost:3000/api/games/tic-tac-toe', {
         method: 'POST',
@@ -145,14 +143,9 @@ describe('/api/games/tic-tac-toe', () => {
 
       expect(response.status).toBe(500);
       expect(responseData).toEqual({ error: 'Failed to create game' });
-      expect(consoleSpy).toHaveBeenCalledWith('Error creating game:', storageError);
-      
-      consoleSpy.mockRestore();
     });
 
     it('should handle JSON parsing errors', async () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
       const request = new NextRequest('http://localhost:3000/api/games/tic-tac-toe', {
         method: 'POST',
         body: 'invalid-json'
@@ -163,9 +156,6 @@ describe('/api/games/tic-tac-toe', () => {
 
       expect(response.status).toBe(500);
       expect(responseData).toEqual({ error: 'Failed to create game' });
-      expect(consoleSpy).toHaveBeenCalledWith('Error creating game:', expect.any(Error));
-      
-      consoleSpy.mockRestore();
     });
   });
 

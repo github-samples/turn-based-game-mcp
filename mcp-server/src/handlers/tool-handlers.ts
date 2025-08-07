@@ -88,6 +88,26 @@ export const TOOL_DEFINITIONS = [
         gameId: {
           type: 'string',
           description: 'Optional custom game ID. If not provided, a random UUID will be generated.'
+        },
+        difficulty: {
+          type: 'string',
+          enum: DIFFICULTIES,
+          description: 'AI difficulty level (easy, medium, hard). If not provided, will be asked during setup.'
+        },
+        playerName: {
+          type: 'string',
+          description: 'Your name in the game. If not provided, will be asked during setup.'
+        },
+        playerSymbol: {
+          type: 'string',
+          enum: ['X', 'O'],
+          description: 'For tic-tac-toe: your symbol (X goes first, O goes second). If not provided, will be asked during setup.'
+        },
+        maxRounds: {
+          type: 'number',
+          minimum: 1,
+          maximum: 10,
+          description: 'For rock-paper-scissors: number of rounds to play. If not provided, will be asked during setup.'
         }
       },
       required: ['gameType']
@@ -147,7 +167,7 @@ export async function handleToolCall(name: string, args: any, server?: any) {
         if (!isSupportedGameType(genericGameType)) {
           throw new Error(`Unsupported game type: ${genericGameType}`)
         }
-        return await createGameWithElicitation(genericGameType, genericGameId, server)
+        return await createGameWithElicitation(genericGameType, genericGameId, server, args)
 
       default:
         throw new Error(`Unknown tool: ${name}`)
@@ -160,7 +180,7 @@ export async function handleToolCall(name: string, args: any, server?: any) {
 /**
  * Create game with interactive elicitation
  */
-async function createGameWithElicitation(gameType: string, gameId?: string, server?: any) {
+async function createGameWithElicitation(gameType: string, gameId?: string, server?: any, toolArgs?: any) {
   if (!server) {
     // Fallback to regular creation if no server for elicitation
     return await createGame(gameType, DEFAULT_PLAYER_NAME, gameId, DEFAULT_AI_DIFFICULTY)
@@ -170,8 +190,10 @@ async function createGameWithElicitation(gameType: string, gameId?: string, serv
     // Elicit user preferences
     const elicitationResult = await elicitGameCreationPreferences(server, gameType, {
       gameId,
-      playerName: 'Player',
-      aiDifficulty: 'medium'
+      playerName: toolArgs?.playerName,
+      difficulty: toolArgs?.difficulty,
+      playerSymbol: toolArgs?.playerSymbol,
+      maxRounds: toolArgs?.maxRounds
     })
 
     if (elicitationResult.action === 'decline' || elicitationResult.action === 'cancel') {

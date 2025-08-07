@@ -87,7 +87,7 @@ export function createMockGameSession<T extends BaseGameState>(gameState: T, gam
     gameState,
     gameType,
     history: [],
-    aiDifficulty: 'medium'
+    difficulty: 'medium'
   }
 }
 

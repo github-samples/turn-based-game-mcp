@@ -27,7 +27,7 @@ export async function createGameViaAPI(
   gameType: string, 
   playerName: string, 
   gameId?: string, 
-  aiDifficulty?: string,
+  difficulty?: string,
   gameSpecificOptions?: Record<string, any>
 ) {
   try {
@@ -35,8 +35,8 @@ export async function createGameViaAPI(
     if (gameId) {
       data.gameId = gameId
     }
-    if (aiDifficulty) {
-      data.aiDifficulty = aiDifficulty
+    if (difficulty) {
+      data.difficulty = difficulty
     }
     // Merge any game-specific options
     if (gameSpecificOptions) {

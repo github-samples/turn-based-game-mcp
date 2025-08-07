@@ -38,7 +38,7 @@ export async function playGame(gameType: string, gameId: string) {
   const gameSession = await readGameResource(gameType, gameId)
   
   // Use the difficulty stored in the game session, or fall back to medium
-  const difficulty = gameSession.aiDifficulty || 'medium'
+  const difficulty = gameSession.difficulty || 'medium'
   
   // Check if it's AI's turn
   if (gameSession.gameState.currentPlayerId !== 'ai') {
@@ -319,7 +319,7 @@ export async function createGame(
   gameType: string, 
   playerName: string = DEFAULT_PLAYER_NAME, 
   gameId?: string, 
-  aiDifficulty: string = DEFAULT_AI_DIFFICULTY,
+  difficulty: string = DEFAULT_AI_DIFFICULTY,
   gameSpecificOptions?: Record<string, any>
 ) {
   // Check if game already exists (for games that support custom IDs)
@@ -343,7 +343,7 @@ export async function createGame(
   }
   
   // Create new game via API
-  const gameSession = await createGameViaAPI(gameType, playerName, gameId, aiDifficulty, gameSpecificOptions)
+  const gameSession = await createGameViaAPI(gameType, playerName, gameId, difficulty, gameSpecificOptions)
   
   const response: any = {
     gameId: gameSession.gameState.id,
