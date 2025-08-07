@@ -3,6 +3,8 @@
  * Provides structured ways to gather user preferences and decisions
  */
 
+import { DIFFICULTIES, GAME_TYPES, DEFAULT_PLAYER_NAME, DEFAULT_AI_DIFFICULTY } from '@turn-based-mcp/shared'
+
 export interface ElicitationResult {
   action: "accept" | "decline" | "cancel"
   content?: Record<string, any>
@@ -22,7 +24,7 @@ export async function elicitGameCreationPreferences(
       properties: {
         difficulty: {
           type: "string",
-          enum: ["easy", "medium", "hard"],
+          enum: DIFFICULTIES,
           title: "AI Difficulty Level",
           description: "How challenging should the AI opponent be?"
         },
@@ -37,7 +39,7 @@ export async function elicitGameCreationPreferences(
           type: "string",
           title: "Player Name",
           description: "What should we call you in the game?",
-          default: "Player"
+          default: DEFAULT_PLAYER_NAME
         }
       },
       required: ["difficulty"]
@@ -47,7 +49,7 @@ export async function elicitGameCreationPreferences(
       properties: {
         difficulty: {
           type: "string",
-          enum: ["easy", "medium", "hard"],
+          enum: DIFFICULTIES,
           title: "AI Difficulty Level",
           description: "How smart should the AI be at pattern recognition?"
         },
@@ -63,7 +65,7 @@ export async function elicitGameCreationPreferences(
           type: "string", 
           title: "Player Name",
           description: "What should we call you?",
-          default: "Player"
+          default: DEFAULT_PLAYER_NAME
         }
       },
       required: ["difficulty"]
@@ -90,8 +92,8 @@ export async function elicitGameCreationPreferences(
     return {
       action: "accept",
       content: {
-        difficulty: existingArgs?.aiDifficulty || "medium",
-        playerName: existingArgs?.playerName || "Player",
+        difficulty: existingArgs?.aiDifficulty || DEFAULT_AI_DIFFICULTY,
+        playerName: existingArgs?.playerName || DEFAULT_PLAYER_NAME,
         ...(gameType === 'rock-paper-scissors' && { maxRounds: 3 }),
         ...(gameType === 'tic-tac-toe' && { playerSymbol: "X" })
       }
@@ -186,7 +188,7 @@ export async function elicitGameCompletionFeedback(
       },
       gameTypeForNext: {
         type: "string",
-        enum: ["same", "tic-tac-toe", "rock-paper-scissors"],
+        enum: ["same", ...GAME_TYPES],
         enumNames: ["Same Game", "Tic-Tac-Toe", "Rock Paper Scissors"],
         title: "If playing again, which game?",
         description: "Choose the game type for your next match"

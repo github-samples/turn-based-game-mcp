@@ -6,6 +6,7 @@ import { TicTacToeAI } from '../ai/tic-tac-toe-ai.js'
 import { RockPaperScissorsAI } from '../ai/rock-paper-scissors-ai.js'
 import { TicTacToeGame, RockPaperScissorsGame } from '@turn-based-mcp/shared'
 import { getGameViaAPI, submitMoveViaAPI, createGameViaAPI } from '../utils/http-client.js'
+import { DEFAULT_PLAYER_NAME, DEFAULT_AI_DIFFICULTY } from '@turn-based-mcp/shared'
 
 // Initialize AI and game instances
 const ticTacToeAI = new TicTacToeAI()
@@ -316,9 +317,9 @@ export async function waitForPlayerMove(
  */
 export async function createGame(
   gameType: string, 
-  playerName: string = 'Player', 
+  playerName: string = DEFAULT_PLAYER_NAME, 
   gameId?: string, 
-  aiDifficulty: string = 'medium',
+  aiDifficulty: string = DEFAULT_AI_DIFFICULTY,
   gameSpecificOptions?: Record<string, any>
 ) {
   // Check if game already exists (for games that support custom IDs)

@@ -4,6 +4,7 @@
  */
 
 import type { Prompt, PromptMessage } from '@modelcontextprotocol/sdk/types.js'
+import { GAME_TYPES, DIFFICULTIES } from '@turn-based-mcp/shared'
 
 export interface PromptDefinition {
   name: string
@@ -87,12 +88,12 @@ export const STRATEGY_PROMPTS: PromptDefinition[] = [
     arguments: [
       {
         name: 'gameType',
-        description: 'Game type (tic-tac-toe, rock-paper-scissors)',
+        description: `Game type (${GAME_TYPES?.join(', ') || 'tic-tac-toe, rock-paper-scissors'})`,
         required: false
       },
       {
         name: 'difficulty',
-        description: 'AI difficulty level (easy, medium, hard)',
+        description: `AI difficulty level (${DIFFICULTIES?.join(', ') || 'easy, medium, hard'})`,
         required: false
       }
     ],
@@ -296,7 +297,7 @@ function getSpecificStrategyGuide(gameType: string, difficulty: string): string 
 function getGameTypeStrategies(gameType: string): string {
   // Return strategies for all difficulties of a specific game
   return `Please provide comprehensive strategies for ${gameType.toUpperCase()} across all difficulty levels:\n\n` +
-    ['easy', 'medium', 'hard'].map(diff => 
+    DIFFICULTIES.map(diff => 
       `For ${diff.toUpperCase()} difficulty: ${getSpecificStrategyGuide(gameType, diff)}\n`
     ).join('\n')
 }
@@ -304,7 +305,7 @@ function getGameTypeStrategies(gameType: string): string {
 function getDifficultyStrategies(difficulty: string): string {
   // Return strategies for a specific difficulty across all games
   return `Please provide strategies for ${difficulty.toUpperCase()} difficulty across all games:\n\n` +
-    ['tic-tac-toe', 'rock-paper-scissors'].map(game => 
+    GAME_TYPES.map(game => 
       `For ${game.replace(/-/g, ' ').toUpperCase()}: ${getSpecificStrategyGuide(game, difficulty)}\n`
     ).join('\n')
 }
