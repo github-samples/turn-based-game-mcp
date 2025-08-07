@@ -127,9 +127,8 @@ describe('MCP Server Integration', () => {
         }
       })
 
-      const result = await handleToolCall('create_tic_tac_toe_game', {
-        playerName: 'Test Player',
-        aiDifficulty: 'medium'
+      const result = await handleToolCall('create_game', {
+        gameType: 'tic-tac-toe'
       })
       
       expect(result.gameId).toBe('new-game-id')

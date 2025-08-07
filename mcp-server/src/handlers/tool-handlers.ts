@@ -83,79 +83,23 @@ export const TOOL_DEFINITIONS = [
     },
   },
   {
-    name: 'create_tic_tac_toe_game',
-    description: 'Create a new Tic-Tac-Toe game with optional custom game ID',
+    name: 'create_game',
+    description: 'Create a new game with interactive setup. This will ask you for preferences like difficulty, player options, and other game-specific settings.',
     inputSchema: {
       type: 'object',
       properties: {
-        playerName: {
+        gameType: {
           type: 'string',
-          description: 'Name of the human player',
-          default: 'Player',
+          enum: ['tic-tac-toe', 'rock-paper-scissors'],
+          description: 'Type of game to create'
         },
         gameId: {
           type: 'string',
-          description: 'Optional custom game ID. If not provided, a random UUID will be generated.',
-        },
-        aiDifficulty: {
-          type: 'string',
-          enum: ['easy', 'medium', 'hard'],
-          description: 'AI difficulty level',
-          default: 'medium',
-        },
-        playerSymbol: {
-          type: 'string',
-          enum: ['X', 'O'],
-          description: 'Your symbol: X (goes first) or O (goes second)',
-          default: 'X',
-        },
+          description: 'Optional custom game ID. If not provided, a random UUID will be generated.'
+        }
       },
-      required: [],
-    },
-  },
-  {
-    name: 'create_rock_paper_scissors_game',
-    description: 'Create a new Rock Paper Scissors game',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        playerName: {
-          type: 'string',
-          description: 'Name of the human player',
-          default: 'Player',
-        },
-        aiDifficulty: {
-          type: 'string',
-          enum: ['easy', 'medium', 'hard'],
-          description: 'AI difficulty level',
-          default: 'medium',
-        },
-      },
-      required: [],
-    },
-  },
-  {
-    name: 'create_tic_tac_toe_game_interactive',
-    description: 'Create a new Tic-Tac-Toe game with interactive setup. This will ask you for preferences like difficulty and symbol choice.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        gameId: {
-          type: 'string',
-          description: 'Optional custom game ID. If not provided, a random UUID will be generated.',
-        },
-      },
-      required: [],
-    },
-  },
-  {
-    name: 'create_rock_paper_scissors_game_interactive',
-    description: 'Create a new Rock Paper Scissors game with interactive setup. This will ask you for preferences like difficulty and number of rounds.',
-    inputSchema: {
-      type: 'object',
-      properties: {},
-      required: [],
-    },
+      required: ['gameType']
+    }
   },
 ]
 
@@ -204,30 +148,15 @@ export async function handleToolCall(name: string, args: any, server?: any) {
         }
         return await waitForPlayerMove(waitGameType, waitGameId, timeoutSeconds, pollInterval)
 
-      case 'create_tic_tac_toe_game':
-        const { 
-          playerName: ticTacToePlayerName = 'Player', 
-          gameId: ticTacToeNewGameId, 
-          aiDifficulty: ticTacToeAiDifficulty = 'medium',
-          playerSymbol: ticTacToePlayerSymbol = 'X'
-        } = args
-        
-        const ticTacToeGameOptions = ticTacToePlayerSymbol ? { playerSymbol: ticTacToePlayerSymbol } : undefined
-        return await createGame('tic-tac-toe', ticTacToePlayerName, ticTacToeNewGameId, ticTacToeAiDifficulty, ticTacToeGameOptions)
-
-      case 'create_rock_paper_scissors_game':
-        const { 
-          playerName: rpsPlayerName = 'Player', 
-          aiDifficulty: rpsAiDifficulty = 'medium' 
-        } = args
-        return await createGame('rock-paper-scissors', rpsPlayerName, undefined, rpsAiDifficulty)
-
-      case 'create_tic_tac_toe_game_interactive':
-        const { gameId: interactiveTTTGameId } = args
-        return await createGameInteractive('tic-tac-toe', interactiveTTTGameId, server)
-
-      case 'create_rock_paper_scissors_game_interactive':
-        return await createGameInteractive('rock-paper-scissors', undefined, server)
+      case 'create_game':
+        const { gameType: genericGameType, gameId: genericGameId } = args
+        if (!genericGameType) {
+          throw new Error('gameType is required')
+        }
+        if (!['tic-tac-toe', 'rock-paper-scissors'].includes(genericGameType)) {
+          throw new Error(`Unsupported game type: ${genericGameType}`)
+        }
+        return await createGameWithElicitation(genericGameType, genericGameId, server)
 
       default:
         throw new Error(`Unknown tool: ${name}`)
@@ -240,7 +169,7 @@ export async function handleToolCall(name: string, args: any, server?: any) {
 /**
  * Create game with interactive elicitation
  */
-async function createGameInteractive(gameType: string, gameId?: string, server?: any) {
+async function createGameWithElicitation(gameType: string, gameId?: string, server?: any) {
   if (!server) {
     // Fallback to regular creation if no server for elicitation
     return await createGame(gameType, 'Player', gameId, 'medium')

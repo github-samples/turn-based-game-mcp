@@ -69,7 +69,7 @@ describe('Prompt Handlers', () => {
         expect(message.content.type).toBe('text')
         expect(message.content.text).toContain('Please explain how to play Tic-Tac-Toe')
         expect(message.content.text).toContain('objective of the game')
-        expect(message.content.text).toContain('create_tic_tac_toe_game')
+        expect(message.content.text).toContain("create_game with gameType: 'tic-tac-toe'")
       })
 
       it('should return rock-paper-scissors rules', async () => {
@@ -78,7 +78,7 @@ describe('Prompt Handlers', () => {
         expect(result.messages[0].role).toBe('user')
         expect(result.messages[0].content.text).toContain('Please explain how to play Rock Paper Scissors')
         expect(result.messages[0].content.text).toContain('what beats what')
-        expect(result.messages[0].content.text).toContain('create_rock_paper_scissors_game')
+        expect(result.messages[0].content.text).toContain("create_game with gameType: 'rock-paper-scissors'")
       })
     })
 
@@ -248,7 +248,7 @@ describe('Prompt Handlers', () => {
           const content = result.messages[0].content.text
           
           const gameType = gameName.replace('_rules', '').replace(/_/g, '-')
-          expect(content).toContain(`create_${gameName.replace('_rules', '_game')}`)
+          expect(content).toContain(`create_game with gameType: '${gameType}'`)
           expect(content).toContain(`play_${gameName.replace('_rules', '')}`)
         }
       })
