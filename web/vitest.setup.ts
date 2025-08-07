@@ -3,7 +3,7 @@ import { vi } from 'vitest'
 import '@testing-library/jest-dom'
 
 // Use shared test database setup
-import { setupStandardTestDatabase } from '@turn-based-mcp/shared/dist/testing/vitest-setup.js'
+import { setupStandardTestDatabase } from '@turn-based-mcp/shared/testing'
 
 // Setup standard test database using shared utility
 setupStandardTestDatabase()

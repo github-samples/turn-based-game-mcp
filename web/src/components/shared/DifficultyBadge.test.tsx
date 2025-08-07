@@ -7,8 +7,7 @@ import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { DifficultyBadge } from './DifficultyBadge'
 
-// Mock the shared library constants
-vi.mock('@turn-based-mcp/shared/dist/constants/game-constants', () => ({
+vi.mock('@turn-based-mcp/shared/constants', () => ({
   getDifficultyDisplay: vi.fn((difficulty: string) => {
     const displays: Record<string, { emoji: string; label: string }> = {
       easy: { emoji: '😌', label: 'Easy' },

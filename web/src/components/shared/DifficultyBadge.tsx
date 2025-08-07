@@ -1,7 +1,6 @@
 'use client'
 
-import { getDifficultyDisplay } from '@turn-based-mcp/shared/dist/constants/game-constants'
-import type { Difficulty } from '@turn-based-mcp/shared/dist/types/game'
+import { getDifficultyDisplay, type Difficulty } from '@turn-based-mcp/shared/constants'
 
 /**
  * Props for the DifficultyBadge component

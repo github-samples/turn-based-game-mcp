@@ -8,13 +8,14 @@
 import { vi } from 'vitest'
 import { NextRequest } from 'next/server'
 import type { GameType } from '@turn-based-mcp/shared'
-import { 
-  createSharedGameMocks, 
+
+import {
+  createSharedGameMocks,
   createStorageMocks,
   createMockTicTacToeGameState,
   createMockRPSGameState,
   createMockGameSession
-} from '@turn-based-mcp/shared'
+} from '@turn-based-mcp/shared/testing'
 
 /**
  * Setup standard API route mocks for a specific game type
