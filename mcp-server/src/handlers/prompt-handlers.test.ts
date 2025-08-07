@@ -249,7 +249,7 @@ describe('Prompt Handlers', () => {
           
           const gameType = gameName.replace('_rules', '').replace(/_/g, '-')
           expect(content).toContain(`create_game with gameType: '${gameType}'`)
-          expect(content).toContain(`play_${gameName.replace('_rules', '')}`)
+          expect(content).toContain(`play_game with gameType: '${gameType}'`)
         }
       })
 

@@ -7,31 +7,22 @@ import { elicitGameCreationPreferences } from './elicitation-handlers.js'
 
 export const TOOL_DEFINITIONS = [
   {
-    name: 'play_tic_tac_toe',
-    description: 'Make an AI move in Tic-Tac-Toe game. IMPORTANT: After calling this tool when the game is still playing, you MUST call wait_for_player_move to continue the game flow.',
+    name: 'play_game',
+    description: 'Make an AI move in a game. IMPORTANT: After calling this tool when the game is still playing, you MUST call wait_for_player_move to continue the game flow.',
     inputSchema: {
       type: 'object',
       properties: {
         gameId: {
           type: 'string',
-          description: 'The ID of the Tic-Tac-Toe game to play',
+          description: 'The ID of the game to play',
         },
-      },
-      required: ['gameId'],
-    },
-  },
-  {
-    name: 'play_rock_paper_scissors',
-    description: 'Make an AI choice in Rock Paper Scissors game. IMPORTANT: After calling this tool when the game is still playing, you MUST call wait_for_player_move to continue the game flow.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        gameId: {
+        gameType: {
           type: 'string',
-          description: 'The ID of the Rock Paper Scissors game to play',
+          enum: ['tic-tac-toe', 'rock-paper-scissors'],
+          description: 'Type of game to play',
         },
       },
-      required: ['gameId'],
+      required: ['gameId', 'gameType'],
     },
   },
   {
@@ -55,7 +46,7 @@ export const TOOL_DEFINITIONS = [
   },
   {
     name: 'wait_for_player_move',
-    description: 'Wait for human player to make their move after AI has played. This tool should be called after any play_* tool when the game is still ongoing.',
+    description: 'Wait for human player to make their move after AI has played. This tool should be called after the play_game tool when the game is still ongoing.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -109,19 +100,18 @@ export const TOOL_DEFINITIONS = [
 export async function handleToolCall(name: string, args: any, server?: any) {
   try {
     switch (name) {
-      case 'play_tic_tac_toe':
-        const { gameId: ticTacToeGameId } = args
-        if (!ticTacToeGameId) {
+      case 'play_game':
+        const { gameId: playGameId, gameType: playGameType } = args
+        if (!playGameId) {
           throw new Error('gameId is required')
         }
-        return await playGame('tic-tac-toe', ticTacToeGameId)
-
-      case 'play_rock_paper_scissors':
-        const { gameId: rpsGameId } = args
-        if (!rpsGameId) {
-          throw new Error('gameId is required')
+        if (!playGameType) {
+          throw new Error('gameType is required')
         }
-        return await playGame('rock-paper-scissors', rpsGameId)
+        if (!['tic-tac-toe', 'rock-paper-scissors'].includes(playGameType)) {
+          throw new Error(`Unsupported game type: ${playGameType}`)
+        }
+        return await playGame(playGameType, playGameId)
 
       case 'analyze_game':
         const { gameId: analyzeGameId, gameType: analyzeGameType } = args
