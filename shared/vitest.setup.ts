@@ -1,28 +1,10 @@
 /**
  * Vitest setup for shared package tests
  * 
- * Sets up test database before all tests and cleans up after
+ * Uses local test setup utilities since this is the package that defines them
  */
 
-import { setupTestDatabase, teardownTestDatabase } from './dist/testing/test-database.js'
-import { beforeAll, afterAll } from 'vitest'
+import { setupStandardTestDatabase } from './src/testing/vitest-setup'
 
-// Setup test database before all tests
-beforeAll(async () => {
-  try {
-    await setupTestDatabase(true) // Use in-memory database for speed
-  } catch (error) {
-    console.error('Failed to setup test database:', error)
-    throw error
-  }
-})
-
-// Cleanup test database after all tests
-afterAll(async () => {
-  try {
-    await teardownTestDatabase()
-  } catch (error) {
-    console.error('Failed to teardown test database:', error)
-    // Don't throw here to avoid masking other test failures
-  }
-})
+// Setup standard test database using local utility
+setupStandardTestDatabase()
