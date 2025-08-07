@@ -12,7 +12,7 @@ import { setupTestDatabase, teardownTestDatabase } from './test-database'
  * Standard database setup for all packages
  * Call this in vitest.setup.ts files to ensure consistent database setup
  */
-export function setupStandardTestDatabase() {
+export function setupStandardTestDatabase(): void {
   // Setup test database before all tests
   beforeAll(async () => {
     try {

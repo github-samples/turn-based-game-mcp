@@ -1,7 +1,7 @@
 import { vi } from 'vitest'
 import * as gameStorage from './game-storage';
 import * as sqliteStorage from './sqlite-storage';
-import type { GameSession, Player } from '../types/game';
+import type { GameSession } from '../types/game';
 import type { TicTacToeGameState, RPSGameState } from '../types/games';
 
 // Mock sqlite-storage module

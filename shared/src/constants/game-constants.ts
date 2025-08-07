@@ -81,6 +81,6 @@ export function isValidGameStatus(status: string): status is GameStatus {
 /**
  * Get difficulty display configuration
  */
-export function getDifficultyDisplay(difficulty: Difficulty) {
+export function getDifficultyDisplay(difficulty: Difficulty): { emoji: string; label: string } {
   return DIFFICULTY_DISPLAY[difficulty]
 }

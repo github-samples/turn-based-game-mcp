@@ -51,7 +51,7 @@ export async function setupTestDatabase(
       }
 
       // Create tables synchronously to ensure they exist before tests run
-      const createTables = async () => {
+      const createTables = async (): Promise<void> => {
         try {
           await createTicTacToeTable()
           await createRPSTable()

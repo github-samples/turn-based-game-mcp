@@ -1,5 +1,4 @@
 import sqlite3 from 'sqlite3'
-import { promisify } from 'util'
 import path from 'path'
 import type { GameSession } from '../types/game'
 import type { TicTacToeGameState, RPSGameState } from '../types/games'
