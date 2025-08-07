@@ -7,16 +7,16 @@
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+  "import": "./dist/index.js",
+  "types": "./dist/index.d.ts"
     },
     "./testing": {
-      "import": "./dist/testing/index.js",
-      "types": "./dist/testing/index.d.ts"
+  "import": "./dist/testing/index.js",
+  "types": "./dist/testing/index.d.ts"
     },
     "./constants": {
-      "import": "./dist/constants/index.js",
-      "types": "./dist/constants/index.d.ts"
+  "import": "./dist/constants/index.js",
+  "types": "./dist/constants/index.d.ts"
     }
   },
   "scripts": {

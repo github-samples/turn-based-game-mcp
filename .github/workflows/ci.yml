@@ -31,26 +31,30 @@ jobs:
         run: npm ci
 
       - name: Build shared package
-        run: npm run build --workspace=shared
+        run: npm run build --workspace=@turn-based-mcp/shared
+
+      - name: Verify shared build artifacts
+        run: |
+          test -f shared/dist/index.js || (echo 'shared/dist/index.js missing' && exit 1)
+          test -f shared/dist/testing/index.js || (echo 'shared/dist/testing/index.js missing' && exit 1)
 
       - name: Type check all workspaces
         run: npm run type-check
 
       - name: Build web package
-        run: npm run build --workspace=web
+        run: npm run build --workspace=@turn-based-mcp/web
 
       - name: Build mcp-server package
-        run: npm run build --workspace=mcp-server
+        run: npm run build --workspace=@turn-based-mcp/mcp-server
+
+      - name: Run tests - shared
+        run: npm run test --workspace=@turn-based-mcp/shared
+
+      - name: Run tests - web
+        run: npm run test --workspace=@turn-based-mcp/web
+
+      - name: Run tests - mcp-server
+        run: npm run test --workspace=@turn-based-mcp/mcp-server
 
       - name: Lint web package
-        run: npm run lint --workspace=web
-
-      # Future: Add test steps when tests are implemented
-      # - name: Run tests - shared
-      #   run: npm run test --workspace=shared
-      # 
-      # - name: Run tests - web
-      #   run: npm run test --workspace=web
-      # 
-      # - name: Run tests - mcp-server
-      #   run: npm run test --workspace=mcp-server
+        run: npm run lint --workspace=@turn-based-mcp/web
