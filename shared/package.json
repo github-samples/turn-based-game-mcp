@@ -16,6 +16,8 @@
     "test:ui": "vitest --ui"
   },
   "devDependencies": {
+    "@jest/types": "30.0.5",
+    "@types/jest": "^30.0.0",
     "@vitest/ui": "^3.2.4",
     "fix-esm-import-path": "^1.10.3",
     "typescript": "^5.5.0",
