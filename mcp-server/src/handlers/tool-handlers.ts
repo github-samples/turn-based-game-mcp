@@ -76,7 +76,7 @@ export const TOOL_DEFINITIONS = [
   },
   {
     name: 'create_game',
-    description: 'Create a new game with interactive setup. This will ask you for preferences like difficulty, player options, and other game-specific settings.',
+    description: 'Create a new game with interactive setup. This will ask you for preferences like difficulty, player options, and other game-specific settings. IMPORTANT: Only provide parameters that the user explicitly specified. DO NOT provide default values for optional parameters - missing parameters will trigger interactive elicitation.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -96,12 +96,12 @@ export const TOOL_DEFINITIONS = [
         },
         playerName: {
           type: 'string',
-          description: 'Your name in the game. If not provided, will be asked during setup.'
+          description: 'Your name in the game. LEAVE EMPTY to trigger interactive setup - do not provide defaults like "Player" or "User".'
         },
         playerSymbol: {
           type: 'string',
           enum: ['X', 'O'],
-          description: 'For tic-tac-toe: your symbol (X goes first, O goes second). If not provided, will be asked during setup.'
+          description: 'For tic-tac-toe: your symbol (X goes first, O goes second). LEAVE EMPTY to trigger interactive setup - do not auto-select X.'
         },
         maxRounds: {
           type: 'number',
@@ -172,7 +172,7 @@ export async function handleToolCall(name: string, args: Record<string, unknown>
         if (!isSupportedGameType(genericGameType)) {
           throw new Error(`Unsupported game type: ${genericGameType}`)
         }
-  return await createGameWithElicitation(genericGameType, genericGameId, server, args)
+        return await createGameWithElicitation(genericGameType, genericGameId, server, args)
       }
       default:
         throw new Error(`Unknown tool: ${name}`)
