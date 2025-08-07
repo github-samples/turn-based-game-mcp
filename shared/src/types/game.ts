@@ -44,5 +44,5 @@ export interface GameSession<TGameState extends BaseGameState = BaseGameState> {
   gameState: TGameState;
   gameType: GameType;
   history: GameMove[];
-  aiDifficulty?: Difficulty;
+  difficulty?: Difficulty;
 }

@@ -88,7 +88,7 @@ describe('MCP Server Integration', () => {
             currentPlayerId: 'player1',
             players: { player1: 'Human', ai: 'AI' }
           },
-          aiDifficulty: 'medium'
+          difficulty: 'medium'
         }
       ])
 
@@ -154,7 +154,7 @@ describe('MCP Server Integration', () => {
           status: 'playing',
           currentPlayerId: 'ai'
         },
-        aiDifficulty: 'medium'
+        difficulty: 'medium'
       })
       
       mockSubmitMoveViaAPI.mockResolvedValue({

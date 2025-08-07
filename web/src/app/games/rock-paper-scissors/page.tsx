@@ -80,9 +80,9 @@ export default function RockPaperScissorsPage() {
     setError(null)
     
     try {
-      const body: { playerName: string; gameId?: string; aiDifficulty: string; maxRounds: number } = { 
+      const body: { playerName: string; gameId?: string; difficulty: string; maxRounds: number } = { 
         playerName: 'Player',
-        aiDifficulty,
+        difficulty: aiDifficulty,
         maxRounds 
       }
       if (customGameId) {
@@ -239,7 +239,7 @@ export default function RockPaperScissorsPage() {
       <>
         <GameInfoPanel 
           gameState={gameSession.gameState} 
-          aiDifficulty={gameSession.aiDifficulty} 
+          aiDifficulty={gameSession.difficulty} 
         />
         
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4">
@@ -344,7 +344,7 @@ export default function RockPaperScissorsPage() {
                       <div className="text-sm text-slate-600 dark:text-slate-300">
                         Round: {game.gameState.currentRound + 1}/{game.gameState.maxRounds} • 
                         Turn: {game.gameState.currentPlayerId === 'player1' ? 'Player' : 'AI'} • 
-                        Difficulty: {game.aiDifficulty || 'medium'}
+                        Difficulty: {game.difficulty || 'medium'}
                       </div>
                     </div>
                   </div>
