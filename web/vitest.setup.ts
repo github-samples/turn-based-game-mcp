@@ -1,29 +1,12 @@
 // Vitest setup for web package tests
-import { vi, beforeAll, afterAll } from 'vitest'
+import { vi } from 'vitest'
 import '@testing-library/jest-dom'
 
-// Set up test database for all tests
-import { setupTestDatabase, teardownTestDatabase } from '@turn-based-mcp/shared'
+// Use shared test database setup
+import { setupStandardTestDatabase } from '@turn-based-mcp/shared'
 
-// Setup test database before all tests
-beforeAll(async () => {
-  try {
-    await setupTestDatabase(true) // Use in-memory database for speed
-  } catch (error) {
-    console.error('Failed to setup test database:', error)
-    throw error
-  }
-})
-
-// Cleanup test database after all tests
-afterAll(async () => {
-  try {
-    await teardownTestDatabase()
-  } catch (error) {
-    console.error('Failed to teardown test database:', error)
-    // Don't throw here to avoid masking other test failures
-  }
-})
+// Setup standard test database using shared utility
+setupStandardTestDatabase()
 
 // Mock Next.js Request and Response for API route testing
 class MockRequest {

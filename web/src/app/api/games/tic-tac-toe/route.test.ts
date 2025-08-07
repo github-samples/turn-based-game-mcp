@@ -1,6 +1,7 @@
 import { vi } from 'vitest'
 import { NextRequest } from 'next/server';
 import type { GameSession, TicTacToeGameState } from '@turn-based-mcp/shared';
+import { createTicTacToeTestState } from '../../../../test-utils/common-test-data';
 
 // Use vi.hoisted() to ensure the mock object is available during hoisting
 const mockGame = vi.hoisted(() => ({
@@ -33,27 +34,8 @@ import { GET, POST } from './route';
 const mockGameStorage = vi.mocked(gameStorage);
 
 describe('/api/games/tic-tac-toe', () => {
-  // Create the mock game state at module level
-  const mockGameState: TicTacToeGameState = {
-    id: 'test-game-1',
-    players: [
-      { id: 'player1' as const, name: 'Player', isAI: false },
-      { id: 'ai' as const, name: 'AI', isAI: true }
-    ],
-    currentPlayerId: 'player1' as const,
-    status: 'playing' as const,
-    createdAt: new Date('2024-01-01T10:00:00Z'),
-    updatedAt: new Date('2024-01-01T10:00:00Z'),
-    board: [
-      [null, null, null],
-      [null, null, null],
-      [null, null, null]
-    ],
-    playerSymbols: {
-      player1: 'X' as const,
-      ai: 'O' as const
-    }
-  };
+  // Use shared test data factory to reduce duplication
+  const mockGameState = createTicTacToeTestState();
 
   const mockGameSession: GameSession<TicTacToeGameState> = {
     gameState: mockGameState,

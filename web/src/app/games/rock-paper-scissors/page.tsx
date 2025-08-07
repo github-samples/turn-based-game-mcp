@@ -5,8 +5,8 @@ import { RPSGameBoard } from '../../../components/games/RPSGameBoard'
 import { GameInfoPanel } from '../../../components/games/GameInfoPanel'
 import { GameContainer, GameControls, ConfirmationModal } from '../../../components/ui'
 import { MCPAssistantPanel } from '../../../components/shared'
-import type { RPSGameState, RPSMove } from '@turn-based-mcp/shared'
-import type { GameSession, Difficulty } from '@turn-based-mcp/shared'
+import type { RPSGameState, RPSMove, Difficulty } from '@turn-based-mcp/shared'
+import type { GameSession } from '@turn-based-mcp/shared'
 
 export default function RockPaperScissorsPage() {
   const [gameSession, setGameSession] = useState<GameSession<RPSGameState> | null>(null)
@@ -433,7 +433,7 @@ export default function RockPaperScissorsPage() {
                 </label>
                 <select
                   value={aiDifficulty}
-                  onChange={(e) => setAiDifficulty(e.target.value as 'easy' | 'medium' | 'hard')}
+                  onChange={(e) => setAiDifficulty(e.target.value as Difficulty)}
                   className="w-full px-4 py-3 bg-white/60 dark:bg-slate-700/60 border border-slate-200 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
                 >
                   <option value="easy">🟢 Easy - Random moves</option>

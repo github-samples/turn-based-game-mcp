@@ -145,7 +145,7 @@ Implement consistent difficulty levels across all games:
 ```typescript
 export function calculateTicTacToeMove(
   gameState: TicTacToeGameState,
-  difficulty: 'easy' | 'medium' | 'hard' = 'medium'
+  difficulty: Difficulty = 'medium'
 ): TicTacToeMove {
   const validMoves = getValidMoves(gameState)
   

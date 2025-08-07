@@ -1,29 +1,6 @@
 import type { GameSession } from '../types/game'
 import type { TicTacToeGameState, RPSGameState } from '../types/games'
-
-// Web app base URL for API calls (when called from MCP server)
-const WEB_API_BASE = process.env.WEB_API_BASE || 'http://localhost:3000'
-
-// HTTP client functions for MCP server
-async function httpGet(url: string): Promise<any> {
-  const response = await fetch(url)
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}: ${response.statusText}`)
-  }
-  return response.json()
-}
-
-async function httpPost(url: string, data: any): Promise<any> {
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
-  })
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}: ${response.statusText}`)
-  }
-  return response.json()
-}
+import { httpGet, httpPost, WEB_API_BASE } from '../utils/http-client'
 
 // MCP-specific API functions that make HTTP calls to web app
 export async function getTicTacToeGameForMCP(gameId: string): Promise<GameSession<TicTacToeGameState> | undefined> {

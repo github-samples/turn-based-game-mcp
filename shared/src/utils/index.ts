@@ -34,4 +34,7 @@ export function getGameDisplayName(gameType: GameType): string {
   }
 }
 
+// Re-export HTTP client utilities
+export * from './http-client';
+
 

@@ -5,7 +5,7 @@ import { TicTacToeBoard } from '../../../components/games/TicTacToeBoard'
 import { GameInfoPanel } from '../../../components/games/GameInfoPanel'
 import { GameContainer, GameControls, ConfirmationModal } from '../../../components/ui'
 import { MCPAssistantPanel } from '../../../components/shared'
-import type { TicTacToeGameState, TicTacToeMove } from '@turn-based-mcp/shared'
+import type { TicTacToeGameState, TicTacToeMove, Difficulty } from '@turn-based-mcp/shared'
 import type { GameSession } from '@turn-based-mcp/shared'
 
 export default function TicTacToePage() {
@@ -16,7 +16,7 @@ export default function TicTacToePage() {
   const [availableGames, setAvailableGames] = useState<GameSession<TicTacToeGameState>[]>([])
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [showJoinForm, setShowJoinForm] = useState(false)
-  const [aiDifficulty, setAiDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium')
+  const [aiDifficulty, setAiDifficulty] = useState<Difficulty>('medium')
   const [playerSymbol, setPlayerSymbol] = useState<'X' | 'O'>('X')
   const [gamesToShow, setGamesToShow] = useState(5)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
@@ -427,7 +427,7 @@ export default function TicTacToePage() {
                 </label>
                 <select
                   value={aiDifficulty}
-                  onChange={(e) => setAiDifficulty(e.target.value as 'easy' | 'medium' | 'hard')}
+                  onChange={(e) => setAiDifficulty(e.target.value as Difficulty)}
                   className="w-full px-4 py-3 bg-white/60 dark:bg-slate-700/60 border border-slate-200 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
                 >
                   <option value="easy">🟢 Easy - Random moves</option>
