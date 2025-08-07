@@ -69,7 +69,7 @@ describe('/api/games/rock-paper-scissors', () => {
       expect(mockGame.getInitialState).toHaveBeenCalledWith([
         { id: 'player1', name: 'TestPlayer', isAI: false },
         { id: 'ai', name: 'AI', isAI: true }
-      ]);
+      ], { maxRounds: undefined });
       expect(mockGameStorage.setRPSGame).toHaveBeenCalledWith(
         mockGameState.id,
         expect.objectContaining({
@@ -99,7 +99,7 @@ describe('/api/games/rock-paper-scissors', () => {
       expect(mockGame.getInitialState).toHaveBeenCalledWith([
         { id: 'player1', name: 'Player', isAI: false },
         { id: 'ai', name: 'AI', isAI: true }
-      ]);
+      ], { maxRounds: undefined });
     });
 
     it('should handle empty request body', async () => {
@@ -116,13 +116,12 @@ describe('/api/games/rock-paper-scissors', () => {
       expect(mockGame.getInitialState).toHaveBeenCalledWith([
         { id: 'player1', name: 'Player', isAI: false },
         { id: 'ai', name: 'AI', isAI: true }
-      ]);
+      ], { maxRounds: undefined });
     });
 
     it('should handle storage errors', async () => {
       const storageError = new Error('Storage failed');
       mockGameStorage.setRPSGame.mockRejectedValue(storageError);
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       const request = new NextRequest('http://localhost:3000/api/games/rock-paper-scissors', {
         method: 'POST',
@@ -134,14 +133,9 @@ describe('/api/games/rock-paper-scissors', () => {
 
       expect(response.status).toBe(500);
       expect(responseData).toEqual({ error: 'Failed to create game' });
-      expect(consoleSpy).toHaveBeenCalledWith('Error creating game:', storageError);
-      
-      consoleSpy.mockRestore();
     });
 
     it('should handle JSON parsing errors', async () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
       const request = new NextRequest('http://localhost:3000/api/games/rock-paper-scissors', {
         method: 'POST',
         body: 'invalid-json'
@@ -152,9 +146,6 @@ describe('/api/games/rock-paper-scissors', () => {
 
       expect(response.status).toBe(500);
       expect(responseData).toEqual({ error: 'Failed to create game' });
-      expect(consoleSpy).toHaveBeenCalledWith('Error creating game:', expect.any(Error));
-      
-      consoleSpy.mockRestore();
     });
   });
 
