@@ -1,21 +1,22 @@
+import { vi } from 'vitest'
 import { NextRequest } from 'next/server';
 import type { GameSession, TicTacToeGameState, TicTacToeMove } from '@turn-based-mcp/shared';
 
 // Mock dependencies BEFORE importing the route - use factory functions for proper setup
-jest.mock('@turn-based-mcp/shared', () => {
+vi.mock('@turn-based-mcp/shared', () => {
   const mockGame = {
-    getInitialState: jest.fn(),
-    validateMove: jest.fn(),
-    applyMove: jest.fn(),
-    checkGameEnd: jest.fn(),
-    getValidMoves: jest.fn()
+    getInitialState: vi.fn(),
+    validateMove: vi.fn(),
+    applyMove: vi.fn(),
+    checkGameEnd: vi.fn(),
+    getValidMoves: vi.fn()
   };
   
   return {
-    ...jest.requireActual('@turn-based-mcp/shared'),
-    TicTacToeGame: jest.fn(() => mockGame),
-    getTicTacToeGame: jest.fn(),
-    setTicTacToeGame: jest.fn(),
+    ...vi.importActual('@turn-based-mcp/shared'),
+    TicTacToeGame: vi.fn(() => mockGame),
+    getTicTacToeGame: vi.fn(),
+    setTicTacToeGame: vi.fn(),
     __mockGameInstance: mockGame
   };
 });
@@ -23,16 +24,16 @@ jest.mock('@turn-based-mcp/shared', () => {
 import { POST } from './route';
 import { TicTacToeGame, getTicTacToeGame, setTicTacToeGame } from '@turn-based-mcp/shared';
 
-const mockGetTicTacToeGame = getTicTacToeGame as jest.MockedFunction<typeof getTicTacToeGame>;
-const mockSetTicTacToeGame = setTicTacToeGame as jest.MockedFunction<typeof setTicTacToeGame>;
+const mockGetTicTacToeGame = getTicTacToeGame as vi.MockedFunction<typeof getTicTacToeGame>;
+const mockSetTicTacToeGame = setTicTacToeGame as vi.MockedFunction<typeof setTicTacToeGame>;
 
 // Get access to the mock game instance from the mocked module
-const mockGame = (TicTacToeGame as jest.MockedClass<typeof TicTacToeGame>).mock.results[0]?.value || {
-  getInitialState: jest.fn(),
-  validateMove: jest.fn(),
-  applyMove: jest.fn(),
-  checkGameEnd: jest.fn(),
-  getValidMoves: jest.fn()
+const mockGame = (TicTacToeGame as vi.MockedClass<typeof TicTacToeGame>).mock.results[0]?.value || {
+  getInitialState: vi.fn(),
+  validateMove: vi.fn(),
+  applyMove: vi.fn(),
+  checkGameEnd: vi.fn(),
+  getValidMoves: vi.fn()
 };
 
 describe('/api/games/tic-tac-toe/[id]/move', () => {
@@ -62,7 +63,7 @@ describe('/api/games/tic-tac-toe/[id]/move', () => {
   let mockGameSession: GameSession<TicTacToeGameState>;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     
     // Create fresh mock state for each test
     mockGameState = createMockGameState();
@@ -215,7 +216,7 @@ describe('/api/games/tic-tac-toe/[id]/move', () => {
     });
 
     it('should handle JSON parsing errors', async () => {
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation();
 
       const request = new NextRequest('http://localhost:3000/api/games/tic-tac-toe/test-game-1/move', {
         method: 'POST',
@@ -238,7 +239,7 @@ describe('/api/games/tic-tac-toe/[id]/move', () => {
       const storageError = new Error('Database connection failed');
 
       mockGetTicTacToeGame.mockRejectedValue(storageError);
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation();
 
       const request = new NextRequest('http://localhost:3000/api/games/tic-tac-toe/test-game-1/move', {
         method: 'POST',

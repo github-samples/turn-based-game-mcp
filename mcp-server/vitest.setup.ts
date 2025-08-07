@@ -1,10 +1,11 @@
 /**
- * Jest setup for mcp-server package tests
+ * Vitest setup for mcp-server package tests
  * 
  * Sets up test database before all tests and cleans up after
  */
 
-const { setupTestDatabase, teardownTestDatabase } = require('@turn-based-mcp/shared')
+import { setupTestDatabase, teardownTestDatabase } from '@turn-based-mcp/shared'
+import { beforeAll, afterAll } from 'vitest'
 
 // Setup test database before all tests
 beforeAll(async () => {

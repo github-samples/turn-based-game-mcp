@@ -1,12 +1,13 @@
+import { vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { GameControls } from '../ui/GameControls'
 
 // Mock Next.js Link component
-jest.mock('next/link', () => {
-  return function MockLink({ children, href }: { children: React.ReactNode; href: string }) {
+vi.mock('next/link', () => ({
+  default: function MockLink({ children, href }: { children: React.ReactNode; href: string }) {
     return <a href={href}>{children}</a>
   }
-})
+}))
 
 describe('GameControls', () => {
   it('should render with default props', () => {
@@ -17,7 +18,7 @@ describe('GameControls', () => {
   })
 
   it('should render new game button when onNewGame is provided', () => {
-    const mockOnNewGame = jest.fn()
+    const mockOnNewGame = vi.fn()
     render(<GameControls onNewGame={mockOnNewGame} />)
     
     const newGameButton = screen.getByText('New Game')
@@ -28,7 +29,7 @@ describe('GameControls', () => {
   })
 
   it('should render reset button when showReset and onReset are provided', () => {
-    const mockOnReset = jest.fn()
+    const mockOnReset = vi.fn()
     render(<GameControls showReset onReset={mockOnReset} />)
     
     const resetButton = screen.getByText('Reset Game')
@@ -39,14 +40,14 @@ describe('GameControls', () => {
   })
 
   it('should not render reset button when showReset is false', () => {
-    const mockOnReset = jest.fn()
+    const mockOnReset = vi.fn()
     render(<GameControls showReset={false} onReset={mockOnReset} />)
     
     expect(screen.queryByText('Reset Game')).not.toBeInTheDocument()
   })
 
   it('should show loading state for new game button', () => {
-    const mockOnNewGame = jest.fn()
+    const mockOnNewGame = vi.fn()
     render(<GameControls isLoading onNewGame={mockOnNewGame} />)
     
     expect(screen.getByText('Starting...')).toBeInTheDocument()
@@ -54,8 +55,8 @@ describe('GameControls', () => {
   })
 
   it('should disable buttons when loading', () => {
-    const mockOnNewGame = jest.fn()
-    const mockOnReset = jest.fn()
+    const mockOnNewGame = vi.fn()
+    const mockOnReset = vi.fn()
     render(<GameControls isLoading onNewGame={mockOnNewGame} showReset onReset={mockOnReset} />)
     
     expect(screen.getByRole('button', { name: /starting/i })).toBeDisabled()

@@ -1,3 +1,4 @@
+import { vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { GameContainer } from '../ui/GameContainer'
 
@@ -38,7 +39,7 @@ describe('GameContainer', () => {
   })
 
   it('should call onErrorDismiss when error is dismissed', () => {
-    const mockOnErrorDismiss = jest.fn()
+    const mockOnErrorDismiss = vi.fn()
     const errorMessage = 'Something went wrong'
     render(
       <GameContainer 

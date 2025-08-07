@@ -4,6 +4,7 @@
 
 import { playGame, analyzeGame, waitForPlayerMove, createGame } from './game-operations.js'
 import { elicitGameCreationPreferences } from './elicitation-handlers.js'
+import { GAME_TYPES, DIFFICULTIES, isSupportedGameType, DEFAULT_PLAYER_NAME, DEFAULT_AI_DIFFICULTY } from '@turn-based-mcp/shared'
 
 export const TOOL_DEFINITIONS = [
   {
@@ -18,7 +19,7 @@ export const TOOL_DEFINITIONS = [
         },
         gameType: {
           type: 'string',
-          enum: ['tic-tac-toe', 'rock-paper-scissors'],
+          enum: GAME_TYPES,
           description: 'Type of game to play',
         },
       },
@@ -37,7 +38,7 @@ export const TOOL_DEFINITIONS = [
         },
         gameType: {
           type: 'string',
-          enum: ['tic-tac-toe', 'rock-paper-scissors'],
+          enum: GAME_TYPES,
           description: 'Type of game to analyze',
         },
       },
@@ -56,7 +57,7 @@ export const TOOL_DEFINITIONS = [
         },
         gameType: {
           type: 'string',
-          enum: ['tic-tac-toe', 'rock-paper-scissors'],
+          enum: GAME_TYPES,
           description: 'Type of game to monitor',
         },
         timeoutSeconds: {
@@ -81,7 +82,7 @@ export const TOOL_DEFINITIONS = [
       properties: {
         gameType: {
           type: 'string',
-          enum: ['tic-tac-toe', 'rock-paper-scissors'],
+          enum: GAME_TYPES,
           description: 'Type of game to create'
         },
         gameId: {
@@ -108,7 +109,7 @@ export async function handleToolCall(name: string, args: any, server?: any) {
         if (!playGameType) {
           throw new Error('gameType is required')
         }
-        if (!['tic-tac-toe', 'rock-paper-scissors'].includes(playGameType)) {
+        if (!isSupportedGameType(playGameType)) {
           throw new Error(`Unsupported game type: ${playGameType}`)
         }
         return await playGame(playGameType, playGameId)
@@ -143,7 +144,7 @@ export async function handleToolCall(name: string, args: any, server?: any) {
         if (!genericGameType) {
           throw new Error('gameType is required')
         }
-        if (!['tic-tac-toe', 'rock-paper-scissors'].includes(genericGameType)) {
+        if (!isSupportedGameType(genericGameType)) {
           throw new Error(`Unsupported game type: ${genericGameType}`)
         }
         return await createGameWithElicitation(genericGameType, genericGameId, server)
@@ -162,7 +163,7 @@ export async function handleToolCall(name: string, args: any, server?: any) {
 async function createGameWithElicitation(gameType: string, gameId?: string, server?: any) {
   if (!server) {
     // Fallback to regular creation if no server for elicitation
-    return await createGame(gameType, 'Player', gameId, 'medium')
+    return await createGame(gameType, DEFAULT_PLAYER_NAME, gameId, DEFAULT_AI_DIFFICULTY)
   }
 
   try {
@@ -228,5 +229,5 @@ async function createGameWithElicitation(gameType: string, gameId?: string, serv
   }
   
   // Fallback to regular creation
-  return await createGame(gameType, 'Player', gameId, 'medium')
+  return await createGame(gameType, DEFAULT_PLAYER_NAME, gameId, DEFAULT_AI_DIFFICULTY)
 }

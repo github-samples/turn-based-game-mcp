@@ -1,46 +1,55 @@
+import { vi } from 'vitest'
 import { handleToolCall } from '../handlers/tool-handlers.js'
 import { listResources, readResource } from '../handlers/resource-handlers.js'
 import { listPrompts, getPrompt } from '../handlers/prompt-handlers.js'
+import * as httpClient from '../utils/http-client.js'
+
+// Import the real constants from shared package
+import { GAME_TYPES, DIFFICULTIES, isSupportedGameType, DEFAULT_PLAYER_NAME, DEFAULT_AI_DIFFICULTY } from '@turn-based-mcp/shared'
 
 // Mock the web API calls for testing
-jest.mock('../utils/http-client.js', () => ({
-  httpGet: jest.fn(),
-  httpPost: jest.fn(),
-  getGameViaAPI: jest.fn(),
-  createGameViaAPI: jest.fn(),
-  submitMoveViaAPI: jest.fn(),
-  getGamesByType: jest.fn()
+vi.mock('../utils/http-client.js', () => ({
+  httpGet: vi.fn(),
+  httpPost: vi.fn(),
+  getGameViaAPI: vi.fn(),
+  createGameViaAPI: vi.fn(),
+  submitMoveViaAPI: vi.fn(),
+  getGamesByType: vi.fn()
 }))
 
-// Mock shared library
-jest.mock('@turn-based-mcp/shared', () => ({
-  TicTacToeGame: jest.fn(() => ({
-    getValidMoves: jest.fn(() => [{ row: 0, col: 0 }])
-  })),
-  RockPaperScissorsGame: jest.fn(() => ({}))
-}))
+// Mock only the game classes from shared library
+vi.mock('@turn-based-mcp/shared', async (importOriginal) => {
+  const actual = await importOriginal() as any
+  return {
+    ...actual,
+    TicTacToeGame: vi.fn(() => ({
+      getValidMoves: vi.fn(() => [{ row: 0, col: 0 }])
+    })),
+    RockPaperScissorsGame: vi.fn(() => ({}))
+  }
+})
 
 // Mock AI modules
-jest.mock('../ai/tic-tac-toe-ai.js', () => ({
-  TicTacToeAI: jest.fn(() => ({
-    makeMove: jest.fn(() => ({ row: 0, col: 0 }))
+vi.mock('../ai/tic-tac-toe-ai.js', () => ({
+  TicTacToeAI: vi.fn(() => ({
+    makeMove: vi.fn(() => ({ row: 0, col: 0 }))
   }))
 }))
 
-jest.mock('../ai/rock-paper-scissors-ai.js', () => ({
-  RockPaperScissorsAI: jest.fn(() => ({
-    makeChoice: jest.fn(() => 'rock')
+vi.mock('../ai/rock-paper-scissors-ai.js', () => ({
+  RockPaperScissorsAI: vi.fn(() => ({
+    makeChoice: vi.fn(() => 'rock')
   }))
 }))
 
 describe('MCP Server Integration', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe('Resource Handlers', () => {
     it('should list resources correctly', async () => {
-      const mockGetGamesByType = require('../utils/http-client.js').getGamesByType
+      const mockGetGamesByType = vi.mocked(httpClient.getGamesByType)
       mockGetGamesByType.mockResolvedValue([
         {
           gameState: {
@@ -70,7 +79,7 @@ describe('MCP Server Integration', () => {
     })
 
     it('should read game type resource correctly', async () => {
-      const mockGetGamesByType = require('../utils/http-client.js').getGamesByType
+      const mockGetGamesByType = vi.mocked(httpClient.getGamesByType)
       mockGetGamesByType.mockResolvedValue([
         {
           gameState: {
@@ -95,7 +104,7 @@ describe('MCP Server Integration', () => {
     })
 
     it('should read individual game resource correctly', async () => {
-      const mockGetGameViaAPI = require('../utils/http-client.js').getGameViaAPI
+      const mockGetGameViaAPI = vi.mocked(httpClient.getGameViaAPI)
       mockGetGameViaAPI.mockResolvedValue({
         gameState: {
           id: 'test-game-1',
@@ -118,7 +127,7 @@ describe('MCP Server Integration', () => {
 
   describe('Tool Handlers', () => {
     it('should create tic-tac-toe game correctly', async () => {
-      const mockCreateGameViaAPI = require('../utils/http-client.js').createGameViaAPI
+      const mockCreateGameViaAPI = vi.mocked(httpClient.createGameViaAPI)
       mockCreateGameViaAPI.mockResolvedValue({
         gameState: {
           id: 'new-game-id',
@@ -136,8 +145,8 @@ describe('MCP Server Integration', () => {
     })
 
     it('should handle play moves correctly', async () => {
-      const mockGetGameViaAPI = require('../utils/http-client.js').getGameViaAPI
-      const mockSubmitMoveViaAPI = require('../utils/http-client.js').submitMoveViaAPI
+      const mockGetGameViaAPI = vi.mocked(httpClient.getGameViaAPI)
+      const mockSubmitMoveViaAPI = vi.mocked(httpClient.submitMoveViaAPI)
       
       mockGetGameViaAPI.mockResolvedValue({
         gameState: {

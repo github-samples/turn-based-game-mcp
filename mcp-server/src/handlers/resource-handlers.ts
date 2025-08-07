@@ -3,8 +3,7 @@
  */
 
 import { getGamesByType, getGameViaAPI } from '../utils/http-client.js'
-
-const SUPPORTED_GAME_TYPES = ['tic-tac-toe', 'rock-paper-scissors']
+import { GAME_TYPES, isSupportedGameType } from '@turn-based-mcp/shared'
 
 /**
  * List all available game resources
@@ -13,7 +12,7 @@ export async function listResources() {
   try {
     const resources = []
     
-    for (const gameType of SUPPORTED_GAME_TYPES) {
+    for (const gameType of GAME_TYPES) {
       try {
         // Get all games of this type
         const games = await getGamesByType(gameType)
@@ -63,7 +62,7 @@ export async function readResource(uri: string) {
   const [, gameType, gameId] = match
   
   // Validate game type
-  if (!SUPPORTED_GAME_TYPES.includes(gameType)) {
+  if (!isSupportedGameType(gameType)) {
     throw new Error(`Invalid game type: ${gameType}`)
   }
   
