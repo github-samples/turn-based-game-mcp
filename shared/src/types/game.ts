@@ -19,7 +19,7 @@ export interface BaseGameState {
   updatedAt: Date;
 }
 
-export interface GameMove<T = any> {
+export interface GameMove<T = unknown> {
   playerId: PlayerId;
   move: T;
   timestamp: Date;
@@ -36,7 +36,7 @@ export interface Game<TGameState extends BaseGameState, TMove> {
   applyMove(gameState: TGameState, move: TMove, playerId: PlayerId): TGameState;
   checkGameEnd(gameState: TGameState): GameResult | null;
   getValidMoves(gameState: TGameState, playerId: PlayerId): TMove[];
-  getInitialState(players: Player[], options?: any): TGameState;
+  getInitialState(players: Player[], options?: Record<string, unknown>): TGameState;
 }
 
 // Generic game session for API communication

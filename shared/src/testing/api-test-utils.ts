@@ -102,7 +102,7 @@ export function createMockGameSession<T extends BaseGameState>(gameState: T, gam
  * Use this to create consistent mocks across API route tests
  */
 export function createSharedGameMocks(gameClass: string): {
-  mockImplementation: any;
+  mockImplementation: Record<string, unknown>;
   mockGame: ReturnType<typeof createGameMock>;
 } {
   const mockGame = createGameMock()
