@@ -14,7 +14,7 @@ export interface PromptDefinition {
     description: string
     required?: boolean
   }>
-  handler: (args?: Record<string, any>) => Promise<{
+  handler: (args?: Record<string, unknown>) => Promise<{
     description?: string
     messages: PromptMessage[]
   }>
@@ -97,9 +97,9 @@ export const STRATEGY_PROMPTS: PromptDefinition[] = [
         required: false
       }
     ],
-    handler: async (args = {}) => {
-      const gameType = args.gameType?.toLowerCase()
-      const difficulty = args.difficulty?.toLowerCase()
+  handler: async (args: Record<string, unknown> = {}): Promise<{ description: string; messages: PromptMessage[] }> => {
+  const gameType = typeof args.gameType === 'string' ? args.gameType.toLowerCase() : undefined
+  const difficulty = typeof args.difficulty === 'string' ? args.difficulty.toLowerCase() : undefined
 
       let content = `# AI Difficulty Strategy Guide\n\n`
 
@@ -266,7 +266,7 @@ export async function listPrompts(): Promise<{ prompts: Prompt[] }> {
   }
 }
 
-export async function getPrompt(name: string, args?: Record<string, any>) {
+export async function getPrompt(name: string, args?: Record<string, unknown>): Promise<{ description?: string; messages: PromptMessage[] }> {
   const prompt = ALL_PROMPTS.find(p => p.name === name)
   if (!prompt) {
     throw new Error(`Prompt not found: ${name}`)

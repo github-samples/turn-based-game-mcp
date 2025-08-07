@@ -118,11 +118,14 @@ export const TOOL_DEFINITIONS = [
 /**
  * Handle tool execution
  */
-export async function handleToolCall(name: string, args: any, server?: any) {
-  try {
+export interface ServerWithElicit {
+  elicitInput: (args: { message: string; requestedSchema: unknown }) => Promise<{ action: 'accept' | 'decline' | 'cancel'; content?: Record<string, unknown> }>
+}
+
+export async function handleToolCall(name: string, args: Record<string, unknown>, server?: ServerWithElicit): Promise<unknown> {
     switch (name) {
-      case 'play_game':
-        const { gameId: playGameId, gameType: playGameType } = args
+      case 'play_game': {
+        const { gameId: playGameId, gameType: playGameType } = args as { gameId?: string; gameType?: string }
         if (!playGameId) {
           throw new Error('gameId is required')
         }
@@ -133,9 +136,9 @@ export async function handleToolCall(name: string, args: any, server?: any) {
           throw new Error(`Unsupported game type: ${playGameType}`)
         }
         return await playGame(playGameType, playGameId)
-
-      case 'analyze_game':
-        const { gameId: analyzeGameId, gameType: analyzeGameType } = args
+      }
+      case 'analyze_game': {
+        const { gameId: analyzeGameId, gameType: analyzeGameType } = args as { gameId?: string; gameType?: string }
         if (!analyzeGameId) {
           throw new Error('gameId is required')
         }
@@ -143,14 +146,14 @@ export async function handleToolCall(name: string, args: any, server?: any) {
           throw new Error('gameType is required')
         }
         return await analyzeGame(analyzeGameType, analyzeGameId)
-
-      case 'wait_for_player_move':
+      }
+      case 'wait_for_player_move': {
         const { 
           gameId: waitGameId, 
           gameType: waitGameType, 
           timeoutSeconds = 15, 
           pollInterval = 3 
-        } = args
+        } = args as { gameId?: string; gameType?: string; timeoutSeconds?: number; pollInterval?: number }
         if (!waitGameId) {
           throw new Error('gameId is required')
         }
@@ -158,29 +161,26 @@ export async function handleToolCall(name: string, args: any, server?: any) {
           throw new Error('gameType is required')
         }
         return await waitForPlayerMove(waitGameType, waitGameId, timeoutSeconds, pollInterval)
-
-      case 'create_game':
-        const { gameType: genericGameType, gameId: genericGameId } = args
+      }
+      case 'create_game': {
+        const { gameType: genericGameType, gameId: genericGameId } = args as { gameType?: string; gameId?: string }
         if (!genericGameType) {
           throw new Error('gameType is required')
         }
         if (!isSupportedGameType(genericGameType)) {
           throw new Error(`Unsupported game type: ${genericGameType}`)
         }
-        return await createGameWithElicitation(genericGameType, genericGameId, server, args)
-
+  return await createGameWithElicitation(genericGameType, genericGameId, server, args)
+      }
       default:
         throw new Error(`Unknown tool: ${name}`)
     }
-  } catch (error) {
-    throw error
-  }
 }
 
 /**
  * Create game with interactive elicitation
  */
-async function createGameWithElicitation(gameType: string, gameId?: string, server?: any, toolArgs?: any) {
+async function createGameWithElicitation(gameType: string, gameId?: string, server?: ServerWithElicit, toolArgs?: Record<string, unknown>): Promise<unknown> {
   if (!server) {
     // Fallback to regular creation if no server for elicitation
     return await createGame(gameType, DEFAULT_PLAYER_NAME, gameId, DEFAULT_AI_DIFFICULTY)
@@ -188,7 +188,7 @@ async function createGameWithElicitation(gameType: string, gameId?: string, serv
 
   try {
     // Elicit user preferences
-    const elicitationResult = await elicitGameCreationPreferences(server, gameType, {
+  const elicitationResult = await elicitGameCreationPreferences(server, gameType, {
       gameId,
       playerName: toolArgs?.playerName,
       difficulty: toolArgs?.difficulty,
@@ -214,7 +214,7 @@ async function createGameWithElicitation(gameType: string, gameId?: string, serv
       const finalDifficulty = difficulty || 'medium'
       
       // Prepare game-specific options
-      const gameSpecificOptions: Record<string, any> = {}
+  const gameSpecificOptions: Record<string, unknown> = {}
       if (gameType === 'tic-tac-toe' && playerSymbol) {
         gameSpecificOptions.playerSymbol = playerSymbol
       }
@@ -223,7 +223,7 @@ async function createGameWithElicitation(gameType: string, gameId?: string, serv
       }
       
       // Create the game with elicited preferences
-      const gameResult = await createGame(gameType, finalPlayerName, gameId, finalDifficulty, gameSpecificOptions)
+  const gameResult = await createGame(gameType, finalPlayerName, gameId, finalDifficulty, gameSpecificOptions)
       
       // Add elicitation information to the response
       gameResult.elicitation = {

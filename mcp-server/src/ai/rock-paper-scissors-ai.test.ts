@@ -1,4 +1,4 @@
-import { RockPaperScissorsAI, type Strategy, type Difficulty } from './rock-paper-scissors-ai.js';
+import { RockPaperScissorsAI } from './rock-paper-scissors-ai.js';
 import type { RPSGameState, RPSChoice, Player } from '@turn-based-mcp/shared';
 import { RockPaperScissorsGame } from '@turn-based-mcp/shared';
 
@@ -59,8 +59,8 @@ describe('RockPaperScissorsAI', () => {
       });
 
       it('should counter the most frequent opponent choice', async () => {
-        // Create a state where opponent played rock 2 times, paper 1 time
-        let state = initialState;
+  // Create a state where opponent played rock 2 times, paper 1 time
+  let state = initialState;
         state = game.applyMove(state, { choice: 'rock' }, 'player1');
         state = game.applyMove(state, { choice: 'paper' }, 'ai');
         state = game.applyMove(state, { choice: 'rock' }, 'player1');
@@ -74,8 +74,8 @@ describe('RockPaperScissorsAI', () => {
       });
 
       it('should handle tied frequencies', async () => {
-        // Create equal frequency scenario
-        let state = initialState;
+  // Create equal frequency scenario
+  let state = initialState;
         state = game.applyMove(state, { choice: 'rock' }, 'player1');
         state = game.applyMove(state, { choice: 'paper' }, 'ai');
         state = game.applyMove(state, { choice: 'paper' }, 'player1');
@@ -126,7 +126,7 @@ describe('RockPaperScissorsAI', () => {
     });
 
     it('should default to random for invalid difficulty', async () => {
-      const choice = await ai.makeChoice(initialState, 'invalid' as Difficulty);
+  const choice = await ai.makeChoice(initialState, 'invalid' as any);
       expect(['rock', 'paper', 'scissors']).toContain(choice);
     });
   });
@@ -156,7 +156,7 @@ describe('RockPaperScissorsAI', () => {
   });
 
   describe('analyzeGameState', () => {
-    it('should provide basic game analysis for initial state', () => {
+  it('should provide basic game analysis for initial state', () => {
       const analysis = ai.analyzeGameState(initialState);
       
       expect(analysis).toContain('Game Status: playing');
@@ -165,7 +165,7 @@ describe('RockPaperScissorsAI', () => {
     });
 
     it('should show round history after moves', async () => {
-      let state = initialState;
+  let state = initialState;
       state = game.applyMove(state, { choice: 'rock' }, 'player1');
       state = game.applyMove(state, { choice: 'paper' }, 'ai');
 
@@ -175,7 +175,7 @@ describe('RockPaperScissorsAI', () => {
     });
 
     it('should analyze opponent patterns', async () => {
-      let state = initialState;
+  let state = initialState;
       // Create pattern: rock, paper, rock
       state = game.applyMove(state, { choice: 'rock' }, 'player1');
       state = game.applyMove(state, { choice: 'scissors' }, 'ai');
@@ -196,7 +196,7 @@ describe('RockPaperScissorsAI', () => {
     });
 
     it('should show current score correctly', async () => {
-      let state = initialState;
+      let state = initialState; // reassigned in subsequent applyMove calls
       // Player 1 wins first round
       state = game.applyMove(state, { choice: 'rock' }, 'player1');
       state = game.applyMove(state, { choice: 'scissors' }, 'ai');
@@ -208,7 +208,7 @@ describe('RockPaperScissorsAI', () => {
     });
 
     it('should handle finished games', () => {
-      let state = initialState;
+      const state = { ...initialState }; // mutate copy, no reassignment afterward
       state.status = 'finished';
       state.winner = 'player1';
       state.currentRound = 3;
@@ -218,7 +218,7 @@ describe('RockPaperScissorsAI', () => {
     });
 
     it('should handle draw rounds', async () => {
-      let state = initialState;
+      let state = initialState; // reassigned in applyMove calls
       state = game.applyMove(state, { choice: 'rock' }, 'player1');
       state = game.applyMove(state, { choice: 'rock' }, 'player2');
 
@@ -278,7 +278,7 @@ describe('RockPaperScissorsAI', () => {
     });
 
     it('should maintain consistent difficulty behavior', async () => {
-      const difficulties: Difficulty[] = ['easy', 'medium', 'hard'];
+  const difficulties: any[] = ['easy', 'medium', 'hard'];
       
       for (const difficulty of difficulties) {
         const choice = await ai.makeChoice(initialState, difficulty);
@@ -287,7 +287,7 @@ describe('RockPaperScissorsAI', () => {
     });
 
     it('should handle incomplete rounds', () => {
-      let state = initialState;
+  const state = initialState;
       // Only player1 has made a choice in current round
       state.rounds[0] = { player1Choice: 'rock' };
 
@@ -307,7 +307,7 @@ describe('RockPaperScissorsAI', () => {
 
     it('should be consistent with same game state', async () => {
       // Create a deterministic scenario
-      let state = initialState;
+  let state = initialState;
       state = game.applyMove(state, { choice: 'rock' }, 'player1');
       state = game.applyMove(state, { choice: 'paper' }, 'player2');
       state = game.applyMove(state, { choice: 'rock' }, 'player1');

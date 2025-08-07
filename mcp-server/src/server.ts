@@ -71,7 +71,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   // conversational flow between moves.
 
   try {
-    const result = await handleToolCall(name, args, server)
+  const result = await handleToolCall(name, args ?? {}, server)
     return {
       content: [
         {
@@ -94,7 +94,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 })
 
 // Start the server
-async function main() {
+async function main(): Promise<void> {
   console.error('Starting Turn-based Games MCP server...')
 
   const transport = new StdioServerTransport()

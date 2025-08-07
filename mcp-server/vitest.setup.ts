@@ -4,7 +4,7 @@
  * Uses shared test setup utilities to ensure consistent database setup
  */
 
-import { vi } from 'vitest'
+// Removed unused 'vi' import (lint)
 import { setupStandardTestDatabase } from '@turn-based-mcp/shared/dist/testing/vitest-setup.js'
 
 // Setup standard test database using shared utility

@@ -1,10 +1,8 @@
 import { RockPaperScissorsAI } from './rock-paper-scissors-ai'
-import { RockPaperScissorsGame } from '@turn-based-mcp/shared'
 import type { RPSGameState, RPSChoice } from '@turn-based-mcp/shared'
 
 describe('RockPaperScissorsAI - Current Move Security', () => {
   let ai: RockPaperScissorsAI
-  let game: RockPaperScissorsGame
 
   const createMockGameState = (
     rounds: Array<{
@@ -31,7 +29,7 @@ describe('RockPaperScissorsAI - Current Move Security', () => {
 
   beforeEach(() => {
     ai = new RockPaperScissorsAI()
-    game = new RockPaperScissorsGame()
+  // separate game instance not required for these security-focused tests
   })
 
   describe('Current Round Security Tests', () => {

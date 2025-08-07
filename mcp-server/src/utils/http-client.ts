@@ -7,13 +7,21 @@
 
 import { httpGet, httpPost, WEB_API_BASE } from '@turn-based-mcp/shared'
 
+interface GenericGameStateWrapper {
+  gameState?: { id?: string; status?: string; currentPlayerId?: string; winner?: string | null; createdAt?: string; updatedAt?: string; [k: string]: unknown }
+  difficulty?: string
+  [k: string]: unknown
+}
+interface CreateGameOptions { [k: string]: unknown }
+interface MovePayload { choice?: string; row?: number; col?: number; [k: string]: unknown }
+
 /**
  * Generic game state fetcher for resources
  */
-export async function getGameViaAPI(gameType: string, gameId: string) {
+export async function getGameViaAPI(gameType: string, gameId: string): Promise<GenericGameStateWrapper | undefined> {
   try {
     const games = await httpGet(`${WEB_API_BASE}/api/games/${gameType}/mcp`)
-    return games.find((game: any) => game.gameState?.id === gameId)
+  return (games as GenericGameStateWrapper[]).find((game) => game.gameState?.id === gameId)
   } catch (error) {
     console.error(`Error fetching ${gameType} game via API:`, error)
     return undefined
@@ -28,10 +36,10 @@ export async function createGameViaAPI(
   playerName: string, 
   gameId?: string, 
   difficulty?: string,
-  gameSpecificOptions?: Record<string, any>
-) {
+  gameSpecificOptions?: CreateGameOptions
+): Promise<GenericGameStateWrapper> {
   try {
-    const data: any = { playerName }
+  const data: Record<string, unknown> = { playerName }
     if (gameId) {
       data.gameId = gameId
     }
@@ -55,9 +63,9 @@ export async function createGameViaAPI(
 export async function submitMoveViaAPI(
   gameType: string,
   gameId: string,
-  move: any,
+  move: MovePayload,
   playerId: string
-) {
+): Promise<GenericGameStateWrapper> {
   return await httpPost(`${WEB_API_BASE}/api/games/${gameType}/${gameId}/move`, {
     move,
     playerId
@@ -67,7 +75,7 @@ export async function submitMoveViaAPI(
 /**
  * Get all games of a specific type
  */
-export async function getGamesByType(gameType: string) {
+export async function getGamesByType(gameType: string): Promise<GenericGameStateWrapper[]> {
   return await httpGet(`${WEB_API_BASE}/api/games/${gameType}/mcp`)
 }
 

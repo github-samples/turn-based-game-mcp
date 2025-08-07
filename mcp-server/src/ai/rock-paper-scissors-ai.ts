@@ -1,4 +1,4 @@
-import type { RPSGameState, RPSMove, RPSChoice, Difficulty } from '@turn-based-mcp/shared'
+import type { RPSGameState, RPSChoice, Difficulty } from '@turn-based-mcp/shared'
 import { RockPaperScissorsGame } from '@turn-based-mcp/shared'
 
 export type Strategy = 'random' | 'adaptive' | 'pattern'
@@ -195,7 +195,7 @@ export class RockPaperScissorsAI {
    * Rebuilds the opponent history array from the game state's completed rounds.
    * Assumes player1 is the human opponent whose patterns we want to learn.
    */
-  private updateOpponentHistory(gameState: RPSGameState) {
+  private updateOpponentHistory(gameState: RPSGameState): void {
     // Extract opponent moves from completed rounds
     this.opponentHistory = []
     

@@ -8,7 +8,7 @@ import { GAME_TYPES, isSupportedGameType } from '@turn-based-mcp/shared'
 /**
  * List all available game resources
  */
-export async function listResources() {
+export async function listResources(): Promise<{ resources: Array<Record<string, unknown>> }> {
   try {
     const resources = []
     
@@ -52,9 +52,9 @@ export async function listResources() {
 /**
  * Read a specific game resource
  */
-export async function readResource(uri: string) {
+export async function readResource(uri: string): Promise<{ contents: Array<{ uri: string; mimeType: string; text: string }> }> {
   // Parse game resource URI: game://{gameType} or game://{gameType}/{gameId}
-  const match = uri.match(/^game:\/\/([^\/]+)(?:\/([^\/]+))?$/)
+  const match = uri.match(/^game:\/\/([^/]+)(?:\/([^/]+))?$/)
   if (!match) {
     throw new Error(`Invalid game resource URI: ${uri}`)
   }
@@ -101,7 +101,7 @@ export async function readResource(uri: string) {
             mimeType: 'application/json',
             text: JSON.stringify({
               gameType,
-              games: games.map((game: any) => ({
+              games: games.map((game: { gameState?: { id?: string; status?: string; currentPlayerId?: string; winner?: string | null; createdAt?: string; updatedAt?: string; players?: Record<string, unknown> }; difficulty?: string }) => ({
                 gameId: game.gameState?.id,
                 status: game.gameState?.status,
                 currentPlayer: game.gameState?.currentPlayerId,

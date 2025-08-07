@@ -7,16 +7,16 @@ import { DIFFICULTIES, GAME_TYPES, DEFAULT_PLAYER_NAME, DEFAULT_AI_DIFFICULTY } 
 
 export interface ElicitationResult {
   action: "accept" | "decline" | "cancel"
-  content?: Record<string, any>
+  content?: Record<string, unknown>
 }
 
 /**
  * Game creation preferences elicitation
  */
 export async function elicitGameCreationPreferences(
-  server: any,
+  server: { elicitInput: (args: { message: string; requestedSchema: unknown }) => Promise<ElicitationResult> },
   gameType: string,
-  existingArgs?: Record<string, any>
+  existingArgs?: Record<string, unknown>
 ): Promise<ElicitationResult> {
   const schemas = {
     'tic-tac-toe': {
@@ -78,8 +78,8 @@ export async function elicitGameCreationPreferences(
   }
 
   // Filter out properties that are already provided
-  const filteredSchema: any = { ...baseSchema }
-  const filteredProperties: Record<string, any> = { ...baseSchema.properties }
+  const filteredSchema: Record<string, unknown> = { ...baseSchema }
+  const filteredProperties: Record<string, unknown> = { ...baseSchema.properties }
   const filteredRequired = [...(baseSchema.required || [])]
 
   // Remove properties that already have values
@@ -140,7 +140,7 @@ export async function elicitGameCreationPreferences(
  * Mid-game decision elicitation
  */
 export async function elicitMidGameDecision(
-  server: any,
+  server: { elicitInput: (args: { message: string; requestedSchema: unknown }) => Promise<ElicitationResult> },
   context: {
     gameType: string
     gameId: string
@@ -148,7 +148,7 @@ export async function elicitMidGameDecision(
     options: Array<{ value: string; label: string; description?: string }>
   }
 ): Promise<ElicitationResult> {
-  const { gameType, gameId, situation, options } = context
+  const { gameType, situation, options } = context
 
   const schema = {
     type: "object",
@@ -190,7 +190,7 @@ export async function elicitMidGameDecision(
  * Game completion feedback elicitation
  */
 export async function elicitGameCompletionFeedback(
-  server: any,
+  server: { elicitInput: (args: { message: string; requestedSchema: unknown }) => Promise<ElicitationResult> },
   context: {
     gameType: string
     gameId: string
@@ -257,7 +257,7 @@ export async function elicitGameCompletionFeedback(
  * Strategy hint elicitation
  */
 export async function elicitStrategyPreference(
-  server: any,
+  server: { elicitInput: (args: { message: string; requestedSchema: unknown }) => Promise<ElicitationResult> },
   context: {
     gameType: string
     gameId: string 
@@ -265,7 +265,7 @@ export async function elicitStrategyPreference(
     currentSituation: string
   }
 ): Promise<ElicitationResult> {
-  const { gameType, availableHints, currentSituation } = context
+  const { currentSituation } = context
 
   const schema = {
     type: "object",
@@ -311,7 +311,7 @@ export async function elicitStrategyPreference(
  * Error recovery elicitation
  */
 export async function elicitErrorRecovery(
-  server: any,
+  server: { elicitInput: (args: { message: string; requestedSchema: unknown }) => Promise<ElicitationResult> },
   context: {
     gameType: string
     gameId: string

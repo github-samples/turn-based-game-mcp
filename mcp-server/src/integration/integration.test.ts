@@ -5,7 +5,8 @@ import { listPrompts, getPrompt } from '../handlers/prompt-handlers.js'
 import * as httpClient from '../utils/http-client.js'
 
 // Import the real constants from shared package
-import { GAME_TYPES, DIFFICULTIES, isSupportedGameType, DEFAULT_PLAYER_NAME, DEFAULT_AI_DIFFICULTY } from '@turn-based-mcp/shared'
+// Importing shared constants (some unused intentionally for integration scope) - remove to satisfy lint
+// Removed unused imports
 
 // Mock the web API calls for testing
 vi.mock('../utils/http-client.js', () => ({
@@ -66,15 +67,11 @@ describe('MCP Server Integration', () => {
       expect(result.resources.length).toBeGreaterThan(0)
       
       // Should include game type resources
-      const gameTypeResources = result.resources.filter(r => 
-        r.uri.match(/^game:\/\/[^\/]+$/)
-      )
+  const gameTypeResources = (result.resources as Array<{ uri: string }>).filter(r => r.uri.match(/^game:\/\/[^/]+$/))
       expect(gameTypeResources.length).toBe(2) // tic-tac-toe, rock-paper-scissors
       
       // Should include individual game resources
-      const individualGameResources = result.resources.filter(r => 
-        r.uri.match(/^game:\/\/[^\/]+\/[^\/]+$/)
-      )
+  const individualGameResources = (result.resources as Array<{ uri: string }>).filter(r => r.uri.match(/^game:\/\/[^/]+\/[^/]+$/))
       expect(individualGameResources.length).toBeGreaterThan(0)
     })
 
@@ -140,8 +137,9 @@ describe('MCP Server Integration', () => {
         gameType: 'tic-tac-toe'
       })
       
-      expect(result.gameId).toBe('new-game-id')
-      expect(result.message).toContain('Created new Tic-Tac-Toe game')
+  const created = result as any
+  expect(created.gameId).toBe('new-game-id')
+  expect(created.message).toContain('Created new Tic-Tac-Toe game')
     })
 
     it('should handle play moves correctly', async () => {
@@ -170,9 +168,10 @@ describe('MCP Server Integration', () => {
         gameType: 'tic-tac-toe'
       })
       
-      expect(result.gameId).toBe('test-game')
-      expect(result.aiMove).toBeDefined()
-      expect(result.message).toContain('AI made move')
+  const playResult = result as any
+  expect(playResult.gameId).toBe('test-game')
+  expect(playResult.aiMove).toBeDefined()
+  expect(playResult.message).toContain('AI made move')
     })
 
     it('should handle invalid tool names', async () => {
