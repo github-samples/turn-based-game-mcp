@@ -39,7 +39,7 @@
     "@vitest/ui": "^3.2.4",
     "eslint": "^9.32.0",
     "fix-esm-import-path": "^1.10.3",
-    "typescript": "^5.5.0",
+    "typescript": "^5.9.2",
     "typescript-eslint": "^8.39.0",
     "vitest": "^3.2.4"
   },
