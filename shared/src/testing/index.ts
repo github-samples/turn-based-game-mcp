@@ -23,3 +23,7 @@ export {
   createStorageMocks,
   TEST_MOVES
 } from './api-test-utils'
+
+export {
+  setupStandardTestDatabase
+} from './vitest-setup'

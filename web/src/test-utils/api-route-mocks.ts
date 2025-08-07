@@ -6,6 +6,7 @@
  */
 
 import { vi } from 'vitest'
+import { NextRequest } from 'next/server'
 import { 
   createSharedGameMocks, 
   createStorageMocks,
@@ -95,12 +96,12 @@ export function createTestGameSessions() {
 /**
  * Helper to create NextRequest mock for testing
  */
-export function createMockNextRequest(url: string, init?: { method?: string; body?: any }) {
+export function createMockNextRequest(url: string, init?: { method?: string; body?: unknown }) {
   const mockRequest = {
     url,
     method: init?.method || 'GET',
     json: vi.fn().mockResolvedValue(init?.body || {})
   }
   
-  return mockRequest as any
+  return mockRequest as unknown as NextRequest
 }
