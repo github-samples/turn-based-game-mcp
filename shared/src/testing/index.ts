@@ -12,3 +12,14 @@ export {
   getTestDatabase,
   isTestDatabaseReady
 } from './test-database'
+
+export {
+  createGameMock,
+  createMockPlayers,
+  createMockTicTacToeGameState,
+  createMockRPSGameState,
+  createMockGameSession,
+  createSharedGameMocks,
+  createStorageMocks,
+  TEST_MOVES
+} from './api-test-utils'

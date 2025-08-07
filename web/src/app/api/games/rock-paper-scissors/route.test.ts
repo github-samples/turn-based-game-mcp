@@ -1,6 +1,7 @@
 import { vi } from 'vitest'
 import { NextRequest } from 'next/server';
 import type { GameSession, RPSGameState } from '@turn-based-mcp/shared';
+import { createRPSTestState } from '../../../../test-utils/common-test-data';
 
 // Use vi.hoisted() to ensure the mock object is available during hoisting
 const mockGame = vi.hoisted(() => ({
@@ -33,34 +34,15 @@ import { GET, POST } from './route';
 const mockGameStorage = vi.mocked(gameStorage);
 
 describe('/api/games/rock-paper-scissors', () => {
-  // Create the mock game state at module level
-  const createMockGameState = (): RPSGameState => ({
-    id: 'test-rps-1',
-    players: [
-      { id: 'player1' as const, name: 'Player', isAI: false },
-      { id: 'ai' as const, name: 'AI', isAI: true }
-    ],
-    currentPlayerId: 'player1' as const,
-    status: 'playing' as const,
-    createdAt: new Date('2024-01-01T10:00:00Z'),
-    updatedAt: new Date('2024-01-01T10:00:00Z'),
-    rounds: [],
-    currentRound: 0,
-    scores: {
-      player1: 0,
-      ai: 0
-    },
-    maxRounds: 3
-  });
-
+  // Use shared test data factory to reduce duplication
   let mockGameState: RPSGameState;
   let mockGameSession: GameSession<RPSGameState>;
 
   beforeEach(() => {
     vi.clearAllMocks();
     
-    // Create fresh mock state for each test
-    mockGameState = createMockGameState();
+    // Create fresh test data for each test using shared factory
+    mockGameState = createRPSTestState();
     mockGameSession = {
       gameState: mockGameState,
       gameType: 'rock-paper-scissors' as const,
