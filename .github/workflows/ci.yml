@@ -56,5 +56,5 @@ jobs:
       - name: Run tests - mcp-server
         run: npm run test --workspace=@turn-based-mcp/mcp-server
 
-      - name: Lint web package
-        run: npm run lint --workspace=@turn-based-mcp/web
+      - name: Lint all packages
+        run: npm run lint:all
