@@ -318,7 +318,8 @@ export async function createGame(
   gameType: string, 
   playerName: string = 'Player', 
   gameId?: string, 
-  aiDifficulty: string = 'medium'
+  aiDifficulty: string = 'medium',
+  gameSpecificOptions?: Record<string, any>
 ) {
   // Check if game already exists (for games that support custom IDs)
   if (gameId && gameType === 'tic-tac-toe') {
@@ -341,7 +342,7 @@ export async function createGame(
   }
   
   // Create new game via API
-  const gameSession = await createGameViaAPI(gameType, playerName, gameId, aiDifficulty)
+  const gameSession = await createGameViaAPI(gameType, playerName, gameId, aiDifficulty, gameSpecificOptions)
   
   const response: any = {
     gameId: gameSession.gameState.id,

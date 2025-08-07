@@ -40,7 +40,7 @@ export const GAME_RULES_PROMPTS: PromptDefinition[] = [
 3. How to make moves (using positions 1-9)
 4. All possible winning conditions
 5. Basic strategy tips for beginners
-6. How to use the MCP commands (create_tic_tac_toe_game, play_tic_tac_toe, wait_for_player_move)
+6. How to use the MCP commands (create_game with gameType: 'tic-tac-toe', play_game with gameType: 'tic-tac-toe', wait_for_player_move)
 7. What happens with perfect play
 
 Make it comprehensive but easy to understand for someone who has never played before.`
@@ -66,7 +66,7 @@ Make it comprehensive but easy to understand for someone who has never played be
 3. Strategy tips for beginners and advanced players
 4. How psychology and pattern recognition work in this game
 5. What the different AI difficulty levels mean and how to counter them
-6. How to use the MCP commands (create_rock_paper_scissors_game, play_rock_paper_scissors, wait_for_player_move)
+6. How to use the MCP commands (create_game with gameType: 'rock-paper-scissors', play_game with gameType: 'rock-paper-scissors', wait_for_player_move)
 7. Why unpredictability is key to mastery
 
 Make it comprehensive and include both basic rules and advanced psychological strategies.`
