@@ -1,16 +1,16 @@
-import { vi } from 'vitest'
 /**
  * Tests for DifficultyBadge component
  */
 
+import { vi } from 'vitest'
 import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { DifficultyBadge } from './DifficultyBadge'
 
 // Mock the shared library constants
 vi.mock('@turn-based-mcp/shared/dist/constants/game-constants', () => ({
-  getDifficultyDisplay: vi.fn((difficulty) => {
-    const displays = {
+  getDifficultyDisplay: vi.fn((difficulty: string) => {
+    const displays: Record<string, { emoji: string; label: string }> = {
       easy: { emoji: '😌', label: 'Easy' },
       medium: { emoji: '🎯', label: 'Medium' },
       hard: { emoji: '🔥', label: 'Hard' }

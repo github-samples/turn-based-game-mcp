@@ -1,4 +1,3 @@
-import { vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { GameInfoPanel } from './GameInfoPanel'
 import type { BaseGameState } from '@turn-based-mcp/shared'

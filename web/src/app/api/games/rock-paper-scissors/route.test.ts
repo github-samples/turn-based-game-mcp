@@ -24,8 +24,7 @@ vi.mock('../../../../lib/game-storage', () => ({
   getAllRPSGames: vi.fn()
 }));
 
-// Import the mocked classes
-import { RockPaperScissorsGame } from '@turn-based-mcp/shared';
+// Import the mocked storage
 import * as gameStorage from '../../../../lib/game-storage';
 
 // Now import the route AFTER the mocks are set up

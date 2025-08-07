@@ -24,8 +24,7 @@ vi.mock('../../../../lib/game-storage', () => ({
   getAllTicTacToeGames: vi.fn()
 }));
 
-// Import the mocked classes
-import { TicTacToeGame } from '@turn-based-mcp/shared';
+// Import the mocked storage
 import * as gameStorage from '../../../../lib/game-storage';
 
 // Now import the route AFTER the mocks are set up

@@ -1,4 +1,4 @@
-import { vi } from 'vitest'
+import { vi, type MockedFunction, type MockedClass } from 'vitest'
 import { NextRequest } from 'next/server';
 import type { GameSession, TicTacToeGameState, TicTacToeMove } from '@turn-based-mcp/shared';
 
@@ -24,11 +24,11 @@ vi.mock('@turn-based-mcp/shared', () => {
 import { POST } from './route';
 import { TicTacToeGame, getTicTacToeGame, setTicTacToeGame } from '@turn-based-mcp/shared';
 
-const mockGetTicTacToeGame = getTicTacToeGame as vi.MockedFunction<typeof getTicTacToeGame>;
-const mockSetTicTacToeGame = setTicTacToeGame as vi.MockedFunction<typeof setTicTacToeGame>;
+const mockGetTicTacToeGame = getTicTacToeGame as MockedFunction<typeof getTicTacToeGame>;
+const mockSetTicTacToeGame = setTicTacToeGame as MockedFunction<typeof setTicTacToeGame>;
 
 // Get access to the mock game instance from the mocked module
-const mockGame = (TicTacToeGame as vi.MockedClass<typeof TicTacToeGame>).mock.results[0]?.value || {
+const mockGame = (TicTacToeGame as MockedClass<typeof TicTacToeGame>).mock.results[0]?.value || {
   getInitialState: vi.fn(),
   validateMove: vi.fn(),
   applyMove: vi.fn(),

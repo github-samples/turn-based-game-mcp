@@ -4,3 +4,4 @@ export * from './games/index';
 export * from './utils/index';
 export * from './storage/index';
 export * from './constants/index';
+export * from './testing/index';
