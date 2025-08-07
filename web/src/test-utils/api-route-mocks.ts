@@ -7,6 +7,7 @@
 
 import { vi } from 'vitest'
 import { NextRequest } from 'next/server'
+import type { GameType } from '@turn-based-mcp/shared'
 import { 
   createSharedGameMocks, 
   createStorageMocks,
@@ -19,7 +20,7 @@ import {
  * Setup standard API route mocks for a specific game type
  * This consolidates the common mock setup pattern used across API route tests
  */
-export function setupAPIRouteMocks(gameType: 'tic-tac-toe' | 'rock-paper-scissors') {
+export function setupAPIRouteMocks(gameType: GameType) {
   const gameClass = gameType === 'tic-tac-toe' ? 'TicTacToeGame' : 'RockPaperScissorsGame'
   
   // Create shared game mocks
@@ -42,7 +43,7 @@ export function setupAPIRouteMocks(gameType: 'tic-tac-toe' | 'rock-paper-scissor
  * Setup mocks for move route testing
  * Handles the slightly different mock setup needed for move routes
  */
-export function setupMoveRouteMocks(gameType: 'tic-tac-toe' | 'rock-paper-scissors') {
+export function setupMoveRouteMocks(gameType: GameType) {
   const gameClass = gameType === 'tic-tac-toe' ? 'TicTacToeGame' : 'RockPaperScissorsGame'
   
   // Create game mock

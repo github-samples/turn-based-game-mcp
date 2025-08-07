@@ -6,7 +6,7 @@
  */
 
 import { vi } from 'vitest'
-import type { GameSession, Player, BaseGameState } from '../types/game'
+import type { GameSession, Player, BaseGameState, GameType } from '../types/game'
 import type { TicTacToeGameState, RPSGameState, TicTacToeMove, RPSMove } from '../types/games'
 
 /**
@@ -82,7 +82,7 @@ export function createMockRPSGameState(overrides: Partial<RPSGameState> = {}): R
 /**
  * Create a mock game session
  */
-export function createMockGameSession<T extends BaseGameState>(gameState: T, gameType: 'tic-tac-toe' | 'rock-paper-scissors'): GameSession<T> {
+export function createMockGameSession<T extends BaseGameState>(gameState: T, gameType: GameType): GameSession<T> {
   return {
     gameState,
     gameType,
@@ -110,7 +110,7 @@ export function createSharedGameMocks(gameClass: string) {
 /**
  * Create storage function mocks for a specific game type
  */
-export function createStorageMocks(gameType: 'tic-tac-toe' | 'rock-paper-scissors') {
+export function createStorageMocks(gameType: GameType) {
   if (gameType === 'tic-tac-toe') {
     return {
       getTicTacToeGame: vi.fn(),

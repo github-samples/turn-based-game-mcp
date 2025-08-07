@@ -31,6 +31,33 @@ Follow these testing patterns for the turn-based games platform:
   })
   ```
 
+## Shared Testing Utilities
+
+**Use centralized mock data and test utilities from the shared package:**
+
+```typescript
+// ✅ Import shared testing utilities
+import { 
+  mockTicTacToeGameState, 
+  mockRPSGameState,
+  createMockGameSession,
+  setupTestDatabase,
+  clearTestDatabase 
+} from '@turn-based-mcp/shared/testing'
+
+// ✅ Use shared constants in tests
+import { DIFFICULTIES, GAME_TYPES } from '@turn-based-mcp/shared'
+
+// ❌ Don't recreate mock data locally
+const localMockGameState = { /* duplicated data */ }  // Use shared mocks instead!
+```
+
+**Available shared testing utilities:**
+- Mock game states: `mockTicTacToeGameState`, `mockRPSGameState`
+- Factory functions: `createMockGameSession`, `createMockPlayer`
+- Database utilities: `setupTestDatabase`, `clearTestDatabase`, `teardownTestDatabase`
+- Type assertions and validation helpers
+
 ## Component Testing
 
 - Always render components with realistic props

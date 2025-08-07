@@ -1,8 +1,7 @@
-import type { RPSGameState, RPSMove, RPSChoice } from '@turn-based-mcp/shared'
+import type { RPSGameState, RPSMove, RPSChoice, Difficulty } from '@turn-based-mcp/shared'
 import { RockPaperScissorsGame } from '@turn-based-mcp/shared'
 
 export type Strategy = 'random' | 'adaptive' | 'pattern'
-export type Difficulty = 'easy' | 'medium' | 'hard'
 
 /**
  * AI opponent for Rock Paper Scissors with multiple strategic approaches

@@ -1,7 +1,5 @@
-import type { TicTacToeGameState, TicTacToeMove } from '@turn-based-mcp/shared'
+import type { TicTacToeGameState, TicTacToeMove, Difficulty } from '@turn-based-mcp/shared'
 import { TicTacToeGame } from '@turn-based-mcp/shared'
-
-export type Difficulty = 'easy' | 'medium' | 'hard'
 
 /**
  * AI opponent for Tic-Tac-Toe with configurable difficulty levels
