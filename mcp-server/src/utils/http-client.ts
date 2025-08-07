@@ -1,28 +1,11 @@
 /**
  * HTTP client utilities for communicating with the web API
+ * 
+ * This module provides higher-level API functions for the MCP server
+ * while using shared HTTP utilities to eliminate code duplication.
  */
 
-const WEB_API_BASE = process.env.WEB_API_BASE || 'http://localhost:3000'
-
-export async function httpGet(url: string): Promise<any> {
-  const response = await fetch(url)
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}: ${response.statusText}`)
-  }
-  return response.json()
-}
-
-export async function httpPost(url: string, data: any): Promise<any> {
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
-  })
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}: ${response.statusText}`)
-  }
-  return response.json()
-}
+import { httpGet, httpPost, WEB_API_BASE } from '@turn-based-mcp/shared'
 
 /**
  * Generic game state fetcher for resources
