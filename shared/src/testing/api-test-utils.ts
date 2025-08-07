@@ -13,7 +13,13 @@ import type { TicTacToeGameState, RPSGameState, TicTacToeMove, RPSMove } from '.
  * Generic game mock factory
  * Creates a mock game instance with all required methods
  */
-export function createGameMock() {
+export function createGameMock(): {
+  getInitialState: ReturnType<typeof vi.fn>;
+  validateMove: ReturnType<typeof vi.fn>;
+  applyMove: ReturnType<typeof vi.fn>;
+  checkGameEnd: ReturnType<typeof vi.fn>;
+  getValidMoves: ReturnType<typeof vi.fn>;
+} {
   return {
     getInitialState: vi.fn(),
     validateMove: vi.fn(),
@@ -95,7 +101,10 @@ export function createMockGameSession<T extends BaseGameState>(gameState: T, gam
  * Vitest mock configuration for shared package games
  * Use this to create consistent mocks across API route tests
  */
-export function createSharedGameMocks(gameClass: string) {
+export function createSharedGameMocks(gameClass: string): {
+  mockImplementation: any;
+  mockGame: ReturnType<typeof createGameMock>;
+} {
   const mockGame = createGameMock()
   
   return {
@@ -110,7 +119,7 @@ export function createSharedGameMocks(gameClass: string) {
 /**
  * Create storage function mocks for a specific game type
  */
-export function createStorageMocks(gameType: GameType) {
+export function createStorageMocks(gameType: GameType): Record<string, ReturnType<typeof vi.fn>> {
   if (gameType === 'tic-tac-toe') {
     return {
       getTicTacToeGame: vi.fn(),

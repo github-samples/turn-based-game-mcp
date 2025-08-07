@@ -95,7 +95,7 @@ export class RockPaperScissorsGame implements Game<RPSGameState, RPSMove> {
     newRounds[gameState.currentRound] = currentRound;
     
     let newCurrentRound = gameState.currentRound;
-    let newScores = { ...gameState.scores };
+    const newScores = { ...gameState.scores };
     let newCurrentPlayerId = gameState.currentPlayerId;
     
     // If both players have made their choices, resolve the round

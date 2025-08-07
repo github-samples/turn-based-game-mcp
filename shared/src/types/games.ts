@@ -1,4 +1,4 @@
-import { BaseGameState, GameMove } from './game';
+import { BaseGameState } from './game';
 
 // Tic-tac-toe specific types
 export type CellValue = 'X' | 'O' | null;
