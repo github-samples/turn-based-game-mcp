@@ -22,11 +22,12 @@ interface GameSessionWrapper { gameState: TicTacToeGameState | RPSGameState; dif
 export async function readGameResource(gameType: string, gameId: string): Promise<GameSessionWrapper> {
   const uri = `game://${gameType}/${gameId}`
   try {
-    const gameSession = await getGameViaAPI(gameType, gameId)
-    if (!gameSession) {
+  const gameSession = await getGameViaAPI(gameType, gameId)
+  if (!gameSession || !gameSession.gameState) {
       throw new Error(`Game not found: ${uri}`)
     }
-    return gameSession
+  // Cast only after verifying presence
+  return gameSession as unknown as GameSessionWrapper
   } catch (error) {
     throw new Error(`Failed to read game resource ${uri}: ${error}`)
   }
@@ -359,7 +360,7 @@ export async function createGame(
   const gameSession = await createGameViaAPI(gameType, playerName, gameId, difficulty, gameSpecificOptions)
   
   const response: Record<string, unknown> = {
-    gameId: gameSession.gameState.id,
+  gameId: gameSession.gameState.id as string,
     gameType,
     gameState: gameSession.gameState,
     players: gameSession.gameState.players,

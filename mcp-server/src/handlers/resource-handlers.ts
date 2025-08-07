@@ -2,7 +2,7 @@
  * MCP Resource handlers for game resources
  */
 
-import { getGamesByType, getGameViaAPI } from '../utils/http-client.js'
+import { getGamesByType, getGameViaAPI, type GenericGameStateWrapper } from '../utils/http-client.js'
 import { GAME_TYPES, isSupportedGameType } from '@turn-based-mcp/shared'
 
 /**
@@ -101,16 +101,25 @@ export async function readResource(uri: string): Promise<{ contents: Array<{ uri
             mimeType: 'application/json',
             text: JSON.stringify({
               gameType,
-              games: games.map((game: { gameState?: { id?: string; status?: string; currentPlayerId?: string; winner?: string | null; createdAt?: string; updatedAt?: string; players?: Record<string, unknown> }; difficulty?: string }) => ({
-                gameId: game.gameState?.id,
-                status: game.gameState?.status,
-                currentPlayer: game.gameState?.currentPlayerId,
-                winner: game.gameState?.winner || null,
-                createdAt: game.gameState?.createdAt,
-                updatedAt: game.gameState?.updatedAt,
-                playerCount: Object.keys(game.gameState?.players || {}).length,
-                difficulty: game.difficulty
-              })),
+              games: games.map((game: GenericGameStateWrapper) => {
+                const playersUnknown: unknown = (game.gameState as Record<string, unknown>).players
+                let playerCount = 0
+                if (Array.isArray(playersUnknown)) {
+                  playerCount = playersUnknown.length
+                } else if (playersUnknown && typeof playersUnknown === 'object') {
+                  playerCount = Object.keys(playersUnknown as Record<string, unknown>).length
+                }
+                return {
+                  gameId: game.gameState.id,
+                  status: game.gameState.status,
+                  currentPlayer: game.gameState.currentPlayerId,
+                  winner: game.gameState.winner || null,
+                  createdAt: game.gameState.createdAt,
+                  updatedAt: game.gameState.updatedAt,
+                  playerCount,
+                  difficulty: game.difficulty
+                }
+              }),
               totalGames: games.length,
               timestamp: new Date().toISOString()
             })

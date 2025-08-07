@@ -118,8 +118,10 @@ export const TOOL_DEFINITIONS = [
 /**
  * Handle tool execution
  */
+// Match the SDK server's elicitInput signature loosely to avoid incompatibility issues.
 export interface ServerWithElicit {
-  elicitInput: (args: { message: string; requestedSchema: unknown }) => Promise<{ action: 'accept' | 'decline' | 'cancel'; content?: Record<string, unknown> }>
+  // Allow extra properties on args to accommodate SDK's added metadata fields.
+  elicitInput: (args: { message: string; requestedSchema: unknown; [k: string]: unknown }) => Promise<{ action: 'accept' | 'decline' | 'cancel'; content?: Record<string, unknown> }>
 }
 
 export async function handleToolCall(name: string, args: Record<string, unknown>, server?: ServerWithElicit): Promise<unknown> {
@@ -207,11 +209,11 @@ async function createGameWithElicitation(gameType: string, gameId?: string, serv
     }
 
     if (elicitationResult.action === 'accept' && elicitationResult.content) {
-      const { difficulty, playerName, playerSymbol, maxRounds } = elicitationResult.content
+  const { difficulty, playerName, playerSymbol, maxRounds } = elicitationResult.content
       
       // Prepare game creation parameters
-      const finalPlayerName = playerName || 'Player'
-      const finalDifficulty = difficulty || 'medium'
+  const finalPlayerName = (playerName as string) || 'Player'
+  const finalDifficulty = (difficulty as string) || 'medium'
       
       // Prepare game-specific options
   const gameSpecificOptions: Record<string, unknown> = {}

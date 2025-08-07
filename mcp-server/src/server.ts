@@ -13,7 +13,7 @@ import {
 
 // Import handlers
 import { listResources, readResource } from './handlers/resource-handlers.js'
-import { TOOL_DEFINITIONS, handleToolCall } from './handlers/tool-handlers.js'
+import { TOOL_DEFINITIONS, handleToolCall, type ServerWithElicit } from './handlers/tool-handlers.js'
 import { listPrompts, getPrompt } from './handlers/prompt-handlers.js'
 
 const server = new Server(
@@ -71,7 +71,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   // conversational flow between moves.
 
   try {
-  const result = await handleToolCall(name, args ?? {}, server)
+  const result = await handleToolCall(name, args ?? {}, server as unknown as ServerWithElicit)
     return {
       content: [
         {
