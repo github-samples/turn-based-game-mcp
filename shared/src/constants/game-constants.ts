@@ -3,7 +3,7 @@
  * Single source of truth for game types, difficulties, and default values
  */
 
-import type { GameType, Difficulty } from '../types/game.js'
+import type { GameType, Difficulty } from '../types/game'
 
 /**
  * Supported game types

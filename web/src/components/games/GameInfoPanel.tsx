@@ -1,6 +1,7 @@
 'use client'
 
 import type { BaseGameState, Difficulty } from '@turn-based-mcp/shared'
+import { DifficultyBadge } from '../shared'
 
 /**
  * Props for the GameInfoPanel component
@@ -92,15 +93,7 @@ export function GameInfoPanel({
         {aiDifficulty && (
           <div className="flex justify-between items-center py-2">
             <span className="text-slate-600 dark:text-slate-300 font-medium">AI Difficulty:</span>
-            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
-              aiDifficulty === 'easy' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' :
-              aiDifficulty === 'hard' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' :
-              'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300'
-            }`}>
-              {aiDifficulty === 'easy' && '😌 Easy'}
-              {aiDifficulty === 'medium' && '🎯 Medium'}
-              {aiDifficulty === 'hard' && '🔥 Hard'}
-            </span>
+            <DifficultyBadge difficulty={aiDifficulty} />
           </div>
         )}
         

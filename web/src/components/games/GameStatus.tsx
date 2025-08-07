@@ -1,6 +1,7 @@
 'use client'
 
 import type { BaseGameState, Difficulty } from '@turn-based-mcp/shared'
+import { DifficultyBadge } from '../shared'
 
 interface GameStatusProps {
   gameState: BaseGameState
@@ -32,11 +33,7 @@ export function GameStatus({ gameState, aiDifficulty }: GameStatusProps) {
         {aiDifficulty && (
           <div className="flex justify-between">
             <span className="text-gray-600 dark:text-gray-300">AI Difficulty:</span>
-            <span className="font-medium capitalize">
-              {aiDifficulty === 'easy' && '😌 Easy'}
-              {aiDifficulty === 'medium' && '🎯 Medium'}
-              {aiDifficulty === 'hard' && '🔥 Hard'}
-            </span>
+            <DifficultyBadge difficulty={aiDifficulty} variant="compact" />
           </div>
         )}
         
