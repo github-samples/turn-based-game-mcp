@@ -13,16 +13,20 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.17.0",
     "@turn-based-mcp/shared": "file:../shared"
   },
   "devDependencies": {
+    "@eslint/js": "^9.32.0",
     "@types/node": "^24.1.0",
     "@vitest/ui": "^3.2.4",
     "typescript": "^5.5.0",
+    "typescript-eslint": "^8.39.0",
     "vitest": "^3.2.4"
   }
 }

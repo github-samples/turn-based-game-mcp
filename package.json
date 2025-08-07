@@ -17,15 +17,22 @@
     "clean": "npm run clean --workspace=shared && npm run clean --workspace=web && npm run clean --workspace=mcp-server",
     "test": "npm run test --workspace=shared && npm run test --workspace=web && npm run test --workspace=mcp-server",
     "test:watch": "npm run test:watch --workspace=shared",
-    "test:coverage": "npm run test:coverage --workspace=shared && npm run test:coverage --workspace=web && npm run test:coverage --workspace=mcp-server"
+    "test:coverage": "npm run test:coverage --workspace=shared && npm run test:coverage --workspace=web && npm run test:coverage --workspace=mcp-server",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "lint:all": "npm run lint --workspace=shared && npm run lint --workspace=web && npm run lint --workspace=mcp-server"
   },
   "devDependencies": {
+    "@eslint/js": "^9.32.0",
     "@testing-library/jest-dom": "^6.6.4",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
+    "@types/eslint__js": "^8.42.3",
     "@types/node": "^24.1.0",
     "@vitest/ui": "^3.2.4",
+    "eslint": "^9.32.0",
     "typescript": "^5.5.0",
+    "typescript-eslint": "^8.39.0",
     "vitest": "^3.2.4"
   },
   "engines": {
