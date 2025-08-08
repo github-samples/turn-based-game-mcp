@@ -196,7 +196,23 @@ async function createGameWithElicitation(gameType: string, gameId?: string, serv
       difficulty: toolArgs?.difficulty,
       playerSymbol: toolArgs?.playerSymbol,
       maxRounds: toolArgs?.maxRounds
-    })
+  // Validate toolArgs properties before passing them
+  const elicitationOptions: Record<string, unknown> = { gameId };
+  if (toolArgs) {
+    if (typeof toolArgs.playerName === 'string') {
+      elicitationOptions.playerName = toolArgs.playerName;
+    }
+    if (typeof toolArgs.difficulty === 'string') {
+      elicitationOptions.difficulty = toolArgs.difficulty;
+    }
+    if (typeof toolArgs.playerSymbol === 'string') {
+      elicitationOptions.playerSymbol = toolArgs.playerSymbol;
+    }
+    if (typeof toolArgs.maxRounds === 'number') {
+      elicitationOptions.maxRounds = toolArgs.maxRounds;
+    }
+  }
+  const elicitationResult = await elicitGameCreationPreferences(server, gameType, elicitationOptions)
 
     if (elicitationResult.action === 'decline' || elicitationResult.action === 'cancel') {
       return {
