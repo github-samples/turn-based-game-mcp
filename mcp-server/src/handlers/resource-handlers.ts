@@ -2,18 +2,17 @@
  * MCP Resource handlers for game resources
  */
 
-import { getGamesByType, getGameViaAPI } from '../utils/http-client.js'
-
-const SUPPORTED_GAME_TYPES = ['tic-tac-toe', 'rock-paper-scissors']
+import { getGamesByType, getGameViaAPI, type GenericGameStateWrapper } from '../utils/http-client.js'
+import { GAME_TYPES, isSupportedGameType } from '@turn-based-mcp/shared'
 
 /**
  * List all available game resources
  */
-export async function listResources() {
+export async function listResources(): Promise<{ resources: Array<Record<string, unknown>> }> {
   try {
     const resources = []
     
-    for (const gameType of SUPPORTED_GAME_TYPES) {
+    for (const gameType of GAME_TYPES) {
       try {
         // Get all games of this type
         const games = await getGamesByType(gameType)
@@ -53,9 +52,9 @@ export async function listResources() {
 /**
  * Read a specific game resource
  */
-export async function readResource(uri: string) {
+export async function readResource(uri: string): Promise<{ contents: Array<{ uri: string; mimeType: string; text: string }> }> {
   // Parse game resource URI: game://{gameType} or game://{gameType}/{gameId}
-  const match = uri.match(/^game:\/\/([^\/]+)(?:\/([^\/]+))?$/)
+  const match = uri.match(/^game:\/\/([^/]+)(?:\/([^/]+))?$/)
   if (!match) {
     throw new Error(`Invalid game resource URI: ${uri}`)
   }
@@ -63,7 +62,7 @@ export async function readResource(uri: string) {
   const [, gameType, gameId] = match
   
   // Validate game type
-  if (!SUPPORTED_GAME_TYPES.includes(gameType)) {
+  if (!isSupportedGameType(gameType)) {
     throw new Error(`Invalid game type: ${gameType}`)
   }
   
@@ -102,16 +101,25 @@ export async function readResource(uri: string) {
             mimeType: 'application/json',
             text: JSON.stringify({
               gameType,
-              games: games.map((game: any) => ({
-                gameId: game.gameState?.id,
-                status: game.gameState?.status,
-                currentPlayer: game.gameState?.currentPlayerId,
-                winner: game.gameState?.winner || null,
-                createdAt: game.gameState?.createdAt,
-                updatedAt: game.gameState?.updatedAt,
-                playerCount: Object.keys(game.gameState?.players || {}).length,
-                aiDifficulty: game.aiDifficulty
-              })),
+              games: games.map((game: GenericGameStateWrapper) => {
+                const playersUnknown: unknown = (game.gameState as Record<string, unknown>).players
+                let playerCount = 0
+                if (Array.isArray(playersUnknown)) {
+                  playerCount = playersUnknown.length
+                } else if (playersUnknown && typeof playersUnknown === 'object') {
+                  playerCount = Object.keys(playersUnknown as Record<string, unknown>).length
+                }
+                return {
+                  gameId: game.gameState.id,
+                  status: game.gameState.status,
+                  currentPlayer: game.gameState.currentPlayerId,
+                  winner: game.gameState.winner || null,
+                  createdAt: game.gameState.createdAt,
+                  updatedAt: game.gameState.updatedAt,
+                  playerCount,
+                  difficulty: game.difficulty
+                }
+              }),
               totalGames: games.length,
               timestamp: new Date().toISOString()
             })

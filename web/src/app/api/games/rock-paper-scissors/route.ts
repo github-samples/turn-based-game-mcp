@@ -8,14 +8,14 @@ const rpsGame = new RockPaperScissorsGame()
 
 export async function POST(request: NextRequest) {
   try {
-    const { playerName, gameId, aiDifficulty } = await request.json()
+    const { playerName, gameId, difficulty, maxRounds } = await request.json()
     
     const players: Player[] = [
       { id: 'player1', name: playerName || 'Player', isAI: false },
       { id: 'ai', name: 'AI', isAI: true }
     ]
     
-    const gameState = rpsGame.getInitialState(players)
+    const gameState = rpsGame.getInitialState(players, { maxRounds })
     
     // Use custom gameId if provided
     if (gameId) {
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
       gameState,
       gameType: 'rock-paper-scissors',
       history: [],
-      aiDifficulty: aiDifficulty || 'medium'
+      difficulty: difficulty || 'medium'
     }
     
     await setRPSGame(gameState.id, gameSession)

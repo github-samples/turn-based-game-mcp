@@ -140,6 +140,89 @@ export function getGameDisplayName(type: GameType): string {
 }
 ```
 
+## Constants and Common Values
+
+### Centralized Constants and Derived Types
+**Types are derived from constants using `as const` assertions - constants are the single source of truth:**
+
+```typescript
+// ✅ Constants define the source of truth
+export const DIFFICULTIES = ['easy', 'medium', 'hard'] as const
+export const GAME_TYPES = ['tic-tac-toe', 'rock-paper-scissors'] as const
+export const PLAYER_IDS = { HUMAN: 'player1', PLAYER2: 'player2', AI: 'ai' } as const
+
+// ✅ Types are derived from constants
+export type Difficulty = typeof DIFFICULTIES[number]
+export type GameType = typeof GAME_TYPES[number] 
+export type PlayerId = typeof PLAYER_IDS[keyof typeof PLAYER_IDS]
+
+// ✅ Import the derived types
+import type { Difficulty, GameType } from '@turn-based-mcp/shared'
+
+// ❌ Don't define duplicate union types
+export type Difficulty = 'easy' | 'medium' | 'hard'  // This duplicates the constants!
+```
+
+### Available Constants
+Key constants provided by the shared library:
+
+```typescript
+// Constants with derived types
+export const GAME_TYPES = ['tic-tac-toe', 'rock-paper-scissors'] as const
+export const DIFFICULTIES = ['easy', 'medium', 'hard'] as const
+export const PLAYER_IDS = { HUMAN: 'player1', PLAYER2: 'player2', AI: 'ai' } as const
+export const GAME_STATUSES = ['waiting', 'playing', 'finished'] as const
+
+// Derived types (auto-generated from constants)
+export type GameType = typeof GAME_TYPES[number]
+export type Difficulty = typeof DIFFICULTIES[number]
+export type PlayerId = typeof PLAYER_IDS[keyof typeof PLAYER_IDS]
+export type GameStatus = typeof GAME_STATUSES[number]
+
+// Default values
+export const DEFAULT_PLAYER_NAME = 'Player'
+export const DEFAULT_AI_DIFFICULTY: Difficulty = 'medium'
+
+// UI display configuration
+export const DIFFICULTY_DISPLAY = {
+  easy: { emoji: '😌', label: 'Easy' },
+  medium: { emoji: '🎯', label: 'Medium' },
+  hard: { emoji: '🔥', label: 'Hard' }
+} as const
+```
+
+### Type Guards and Utilities
+Use provided validation functions that work with the constants:
+
+```typescript
+// Type guards (check against the constant arrays)
+export function isSupportedGameType(gameType: string): gameType is GameType
+export function isValidDifficulty(difficulty: string): difficulty is Difficulty
+export function isValidPlayerId(playerId: string): playerId is PlayerId
+
+// Display helpers
+export function getDifficultyDisplay(difficulty: Difficulty)
+```
+
+### Architecture Benefits
+This approach ensures:
+- **Single source of truth**: Constants define what values are valid
+- **Type safety**: TypeScript derives exact types from the constant values
+- **Runtime validation**: Type guards check against the same arrays used to derive types
+- **Maintainability**: Add a new difficulty by updating one constant array
+
+### Testing Constants
+For mocking and test data, use shared testing utilities:
+
+```typescript
+// Test data from shared/src/testing/
+import { 
+  mockTicTacToeGameState, 
+  mockRPSGameState,
+  createMockGameSession 
+} from '@turn-based-mcp/shared/testing'
+```
+
 ## Testing Infrastructure
 
 ### Test Database Utilities

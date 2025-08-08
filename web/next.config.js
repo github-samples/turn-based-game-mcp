@@ -4,6 +4,6 @@ const nextConfig = {
     // Enable experimental features if needed
   },
   transpilePackages: ['@turn-based-mcp/shared'],
-}
+};
 
-module.exports = nextConfig
+export default nextConfig;

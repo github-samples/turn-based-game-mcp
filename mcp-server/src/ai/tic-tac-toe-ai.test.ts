@@ -1,4 +1,4 @@
-import { TicTacToeAI, type Difficulty } from './tic-tac-toe-ai.js';
+import { TicTacToeAI } from './tic-tac-toe-ai.js';
 import type { TicTacToeGameState, Player } from '@turn-based-mcp/shared';
 import { TicTacToeGame } from '@turn-based-mcp/shared';
 
@@ -35,7 +35,7 @@ describe('TicTacToeAI', () => {
 
       it('should choose from available moves only', async () => {
         // Fill most of the board
-        let state = initialState;
+          const state = initialState;
         state.board = [
           ['X', 'O', 'X'],
           ['O', 'X', 'O'],
@@ -61,7 +61,7 @@ describe('TicTacToeAI', () => {
 
     describe('medium difficulty', () => {
       it('should win when possible', async () => {
-        let state = initialState;
+          const state = initialState;
         // Set up a winning scenario for AI
         state.board = [
           ['O', 'O', null],
@@ -74,7 +74,7 @@ describe('TicTacToeAI', () => {
       });
 
       it('should block opponent from winning', async () => {
-        let state = initialState;
+          const state = initialState;
         // Set up scenario where player can win
         state.board = [
           ['X', 'X', null],
@@ -101,7 +101,7 @@ describe('TicTacToeAI', () => {
       });
 
       it('should prefer center when available', async () => {
-        let state = initialState;
+          const state = initialState;
         state.board = [
           ['X', null, null],
           [null, null, null],
@@ -113,7 +113,7 @@ describe('TicTacToeAI', () => {
       });
 
       it('should choose corners when center is taken', async () => {
-        let state = initialState;
+          const state = initialState;
         state.board = [
           [null, null, null],
           [null, 'X', null],
@@ -130,7 +130,7 @@ describe('TicTacToeAI', () => {
       });
 
       it('should prioritize winning over blocking', async () => {
-        let state = initialState;
+          const state = initialState;
         // Both AI and player can win
         state.board = [
           ['O', 'O', null], // AI can win here
@@ -145,7 +145,7 @@ describe('TicTacToeAI', () => {
 
     describe('hard difficulty', () => {
       it('should play optimally using minimax', async () => {
-        let state = initialState;
+          const state = initialState;
         // Classic opening: AI should respond optimally to corner play
         state.board = [
           ['X', null, null],
@@ -158,7 +158,7 @@ describe('TicTacToeAI', () => {
       });
 
       it('should never lose from a winning position', async () => {
-        let state = initialState;
+          const state = initialState;
         // AI is in a winning position
         state.board = [
           ['O', 'X', null],
@@ -171,7 +171,7 @@ describe('TicTacToeAI', () => {
       });
 
       it('should force a draw from losing position', async () => {
-        let state = initialState;
+          const state = initialState;
         // Player has advantage but AI should force draw
         state.board = [
           ['X', null, null],
@@ -206,7 +206,7 @@ describe('TicTacToeAI', () => {
     });
 
     it('should default to easy difficulty for invalid difficulty', async () => {
-      const move = await ai.makeMove(initialState, 'invalid' as Difficulty);
+  const move = await ai.makeMove(initialState, 'invalid' as any);
       expect(game.validateMove(initialState, move, 'ai')).toBe(true);
     });
   });
@@ -223,7 +223,7 @@ describe('TicTacToeAI', () => {
     });
 
     it('should detect winning opportunities', () => {
-      let state = initialState;
+        const state = initialState;
       state.board = [
         ['O', 'O', null],
         ['X', null, null],
@@ -235,7 +235,7 @@ describe('TicTacToeAI', () => {
     });
 
     it('should detect player threats', () => {
-      let state = initialState;
+        const state = initialState;
       state.board = [
         ['X', 'X', null],
         ['O', null, null],
@@ -250,7 +250,7 @@ describe('TicTacToeAI', () => {
     });
 
     it('should analyze board state correctly', () => {
-      let state = initialState;
+        const state = initialState;
       state.board = [
         ['X', null, 'O'],
         [null, 'X', null],  // Center has X
@@ -264,7 +264,7 @@ describe('TicTacToeAI', () => {
     });
 
     it('should handle game-ending scenarios', () => {
-      let state = initialState;
+        const state = initialState;
       state.board = [
         ['X', 'X', 'X'],
         ['O', 'O', null],
@@ -280,7 +280,7 @@ describe('TicTacToeAI', () => {
 
   describe('edge cases and robustness', () => {
     it('should handle full board gracefully', async () => {
-      let state = initialState;
+        const state = initialState;
       state.board = [
         ['X', 'O', 'X'],
         ['O', 'X', 'O'],
@@ -304,7 +304,7 @@ describe('TicTacToeAI', () => {
     });
 
     it('should maintain consistent behavior across difficulties', async () => {
-      const difficulties: Difficulty[] = ['easy', 'medium', 'hard'];
+  const difficulties: any[] = ['easy', 'medium', 'hard'];
       
       for (const difficulty of difficulties) {
         const move = await ai.makeMove(initialState, difficulty);
@@ -313,7 +313,7 @@ describe('TicTacToeAI', () => {
     });
 
     it('should handle near-end game scenarios', async () => {
-      let state = initialState;
+        const state = initialState;
       // Only one move left
       state.board = [
         ['X', 'O', 'X'],

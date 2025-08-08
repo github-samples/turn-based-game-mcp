@@ -1,3 +1,4 @@
+import { vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react';
 import { TicTacToeBoard } from './TicTacToeBoard';
 import type { TicTacToeGameState } from '@turn-based-mcp/shared';
@@ -25,7 +26,7 @@ const createMockGameState = (overrides: Partial<TicTacToeGameState> = {}): TicTa
 });
 
 describe('TicTacToeBoard', () => {
-  const mockOnMove = jest.fn();
+  const mockOnMove = vi.fn();
 
   beforeEach(() => {
     mockOnMove.mockClear();

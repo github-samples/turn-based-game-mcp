@@ -3,34 +3,27 @@
  */
 
 import { playGame, analyzeGame, waitForPlayerMove, createGame } from './game-operations.js'
+import { elicitGameCreationPreferences } from './elicitation-handlers.js'
+import { GAME_TYPES, DIFFICULTIES, isSupportedGameType, DEFAULT_PLAYER_NAME, DEFAULT_AI_DIFFICULTY } from '@turn-based-mcp/shared'
 
 export const TOOL_DEFINITIONS = [
   {
-    name: 'play_tic_tac_toe',
-    description: 'Make an AI move in Tic-Tac-Toe game. IMPORTANT: After calling this tool when the game is still playing, you MUST call wait_for_player_move to continue the game flow.',
+    name: 'play_game',
+    description: 'Make an AI move in a game. IMPORTANT: After calling this tool when the game is still playing, you MUST call wait_for_player_move to continue the game flow.',
     inputSchema: {
       type: 'object',
       properties: {
         gameId: {
           type: 'string',
-          description: 'The ID of the Tic-Tac-Toe game to play',
+          description: 'The ID of the game to play',
         },
-      },
-      required: ['gameId'],
-    },
-  },
-  {
-    name: 'play_rock_paper_scissors',
-    description: 'Make an AI choice in Rock Paper Scissors game. IMPORTANT: After calling this tool when the game is still playing, you MUST call wait_for_player_move to continue the game flow.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        gameId: {
+        gameType: {
           type: 'string',
-          description: 'The ID of the Rock Paper Scissors game to play',
+          enum: GAME_TYPES,
+          description: 'Type of game to play',
         },
       },
-      required: ['gameId'],
+      required: ['gameId', 'gameType'],
     },
   },
   {
@@ -45,7 +38,7 @@ export const TOOL_DEFINITIONS = [
         },
         gameType: {
           type: 'string',
-          enum: ['tic-tac-toe', 'rock-paper-scissors'],
+          enum: GAME_TYPES,
           description: 'Type of game to analyze',
         },
       },
@@ -54,7 +47,7 @@ export const TOOL_DEFINITIONS = [
   },
   {
     name: 'wait_for_player_move',
-    description: 'Wait for human player to make their move after AI has played. This tool should be called after any play_* tool when the game is still ongoing.',
+    description: 'Wait for human player to make their move after AI has played. This tool should be called after the play_game tool when the game is still ongoing.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -64,7 +57,7 @@ export const TOOL_DEFINITIONS = [
         },
         gameType: {
           type: 'string',
-          enum: ['tic-tac-toe', 'rock-paper-scissors'],
+          enum: GAME_TYPES,
           description: 'Type of game to monitor',
         },
         timeoutSeconds: {
@@ -82,75 +75,72 @@ export const TOOL_DEFINITIONS = [
     },
   },
   {
-    name: 'create_tic_tac_toe_game',
-    description: 'Create a new Tic-Tac-Toe game with optional custom game ID',
+    name: 'create_game',
+    description: 'Create a new game with interactive setup. This will ask you for preferences like difficulty, player options, and other game-specific settings. IMPORTANT: Only provide parameters that the user explicitly specified. DO NOT provide default values for optional parameters - missing parameters will trigger interactive elicitation.',
     inputSchema: {
       type: 'object',
       properties: {
-        playerName: {
+        gameType: {
           type: 'string',
-          description: 'Name of the human player',
-          default: 'Player',
+          enum: GAME_TYPES,
+          description: 'Type of game to create'
         },
         gameId: {
           type: 'string',
-          description: 'Optional custom game ID. If not provided, a random UUID will be generated.',
+          description: 'Optional custom game ID. If not provided, a random UUID will be generated.'
         },
-        aiDifficulty: {
+        difficulty: {
           type: 'string',
-          enum: ['easy', 'medium', 'hard'],
-          description: 'AI difficulty level',
-          default: 'medium',
+          enum: DIFFICULTIES,
+          description: 'AI difficulty level (easy, medium, hard). If not provided, will be asked during setup.'
         },
-      },
-      required: [],
-    },
-  },
-  {
-    name: 'create_rock_paper_scissors_game',
-    description: 'Create a new Rock Paper Scissors game',
-    inputSchema: {
-      type: 'object',
-      properties: {
         playerName: {
           type: 'string',
-          description: 'Name of the human player',
-          default: 'Player',
+          description: 'Your name in the game. LEAVE EMPTY to trigger interactive setup - do not provide defaults like "Player" or "User".'
         },
-        aiDifficulty: {
+        playerSymbol: {
           type: 'string',
-          enum: ['easy', 'medium', 'hard'],
-          description: 'AI difficulty level',
-          default: 'medium',
+          enum: ['X', 'O'],
+          description: 'For tic-tac-toe: your symbol (X goes first, O goes second). LEAVE EMPTY to trigger interactive setup - do not auto-select X.'
         },
+        maxRounds: {
+          type: 'number',
+          minimum: 1,
+          maximum: 10,
+          description: 'For rock-paper-scissors: number of rounds to play. If not provided, will be asked during setup.'
+        }
       },
-      required: [],
-    },
+      required: ['gameType']
+    }
   },
 ]
 
 /**
  * Handle tool execution
  */
-export async function handleToolCall(name: string, args: any) {
-  try {
+// Match the SDK server's elicitInput signature loosely to avoid incompatibility issues.
+export interface ServerWithElicit {
+  // Allow extra properties on args to accommodate SDK's added metadata fields.
+  elicitInput: (args: { message: string; requestedSchema: unknown; [k: string]: unknown }) => Promise<{ action: 'accept' | 'decline' | 'cancel'; content?: Record<string, unknown> }>
+}
+
+export async function handleToolCall(name: string, args: Record<string, unknown>, server?: ServerWithElicit): Promise<unknown> {
     switch (name) {
-      case 'play_tic_tac_toe':
-        const { gameId: ticTacToeGameId } = args
-        if (!ticTacToeGameId) {
+      case 'play_game': {
+        const { gameId: playGameId, gameType: playGameType } = args as { gameId?: string; gameType?: string }
+        if (!playGameId) {
           throw new Error('gameId is required')
         }
-        return await playGame('tic-tac-toe', ticTacToeGameId)
-
-      case 'play_rock_paper_scissors':
-        const { gameId: rpsGameId } = args
-        if (!rpsGameId) {
-          throw new Error('gameId is required')
+        if (!playGameType) {
+          throw new Error('gameType is required')
         }
-        return await playGame('rock-paper-scissors', rpsGameId)
-
-      case 'analyze_game':
-        const { gameId: analyzeGameId, gameType: analyzeGameType } = args
+        if (!isSupportedGameType(playGameType)) {
+          throw new Error(`Unsupported game type: ${playGameType}`)
+        }
+        return await playGame(playGameType, playGameId)
+      }
+      case 'analyze_game': {
+        const { gameId: analyzeGameId, gameType: analyzeGameType } = args as { gameId?: string; gameType?: string }
         if (!analyzeGameId) {
           throw new Error('gameId is required')
         }
@@ -158,14 +148,14 @@ export async function handleToolCall(name: string, args: any) {
           throw new Error('gameType is required')
         }
         return await analyzeGame(analyzeGameType, analyzeGameId)
-
-      case 'wait_for_player_move':
+      }
+      case 'wait_for_player_move': {
         const { 
           gameId: waitGameId, 
           gameType: waitGameType, 
           timeoutSeconds = 15, 
           pollInterval = 3 
-        } = args
+        } = args as { gameId?: string; gameType?: string; timeoutSeconds?: number; pollInterval?: number }
         if (!waitGameId) {
           throw new Error('gameId is required')
         }
@@ -173,26 +163,104 @@ export async function handleToolCall(name: string, args: any) {
           throw new Error('gameType is required')
         }
         return await waitForPlayerMove(waitGameType, waitGameId, timeoutSeconds, pollInterval)
-
-      case 'create_tic_tac_toe_game':
-        const { 
-          playerName: ticTacToePlayerName = 'Player', 
-          gameId: ticTacToeNewGameId, 
-          aiDifficulty: ticTacToeAiDifficulty = 'medium' 
-        } = args
-        return await createGame('tic-tac-toe', ticTacToePlayerName, ticTacToeNewGameId, ticTacToeAiDifficulty)
-
-      case 'create_rock_paper_scissors_game':
-        const { 
-          playerName: rpsPlayerName = 'Player', 
-          aiDifficulty: rpsAiDifficulty = 'medium' 
-        } = args
-        return await createGame('rock-paper-scissors', rpsPlayerName, undefined, rpsAiDifficulty)
-
+      }
+      case 'create_game': {
+        const { gameType: genericGameType, gameId: genericGameId } = args as { gameType?: string; gameId?: string }
+        if (!genericGameType) {
+          throw new Error('gameType is required')
+        }
+        if (!isSupportedGameType(genericGameType)) {
+          throw new Error(`Unsupported game type: ${genericGameType}`)
+        }
+        return await createGameWithElicitation(genericGameType, genericGameId, server, args)
+      }
       default:
         throw new Error(`Unknown tool: ${name}`)
     }
-  } catch (error) {
-    throw error
+}
+
+/**
+ * Create game with interactive elicitation
+ */
+async function createGameWithElicitation(gameType: string, gameId?: string, server?: ServerWithElicit, toolArgs?: Record<string, unknown>): Promise<unknown> {
+  if (!server) {
+    // Fallback to regular creation if no server for elicitation
+    return await createGame(gameType, DEFAULT_PLAYER_NAME, gameId, DEFAULT_AI_DIFFICULTY)
   }
+
+  try {
+  // Validate toolArgs properties before passing them
+  const elicitationOptions: Record<string, unknown> = { gameId };
+  if (toolArgs) {
+    if (typeof toolArgs.playerName === 'string') {
+      elicitationOptions.playerName = toolArgs.playerName;
+    }
+    if (typeof toolArgs.difficulty === 'string') {
+      elicitationOptions.difficulty = toolArgs.difficulty;
+    }
+    if (typeof toolArgs.playerSymbol === 'string') {
+      elicitationOptions.playerSymbol = toolArgs.playerSymbol;
+    }
+    if (typeof toolArgs.maxRounds === 'number') {
+      elicitationOptions.maxRounds = toolArgs.maxRounds;
+    }
+  }
+  const elicitationResult = await elicitGameCreationPreferences(server, gameType, elicitationOptions)
+
+    if (elicitationResult.action === 'decline' || elicitationResult.action === 'cancel') {
+      return {
+        gameId: null,
+        gameType,
+        message: `🚫 Game creation ${elicitationResult.action}d by user`,
+        status: 'cancelled',
+        action: elicitationResult.action
+      }
+    }
+
+    if (elicitationResult.action === 'accept' && elicitationResult.content) {
+  const { difficulty, playerName, playerSymbol, maxRounds } = elicitationResult.content
+      
+      // Prepare game creation parameters
+  const finalPlayerName = (playerName as string) || 'Player'
+  const finalDifficulty = (difficulty as string) || 'medium'
+      
+      // Prepare game-specific options
+  const gameSpecificOptions: Record<string, unknown> = {}
+      if (gameType === 'tic-tac-toe' && playerSymbol) {
+        gameSpecificOptions.playerSymbol = playerSymbol
+      }
+      if (gameType === 'rock-paper-scissors' && maxRounds) {
+        gameSpecificOptions.maxRounds = maxRounds
+      }
+      
+      // Create the game with elicited preferences
+  const gameResult = await createGame(gameType, finalPlayerName, gameId, finalDifficulty, gameSpecificOptions)
+      
+      // Add elicitation information to the response
+      gameResult.elicitation = {
+        preferences: elicitationResult.content,
+        message: '🎮 Game created with your custom preferences!'
+      }
+      
+      // Add game-specific messages
+      if (gameType === 'tic-tac-toe' && playerSymbol) {
+        gameResult.message += ` You are playing as ${playerSymbol}.`
+        if (playerSymbol === 'X') {
+          gameResult.message += ' You go first!'
+        } else {
+          gameResult.message += ' AI goes first!'
+        }
+      }
+      if (gameType === 'rock-paper-scissors' && maxRounds) {
+        gameResult.message += ` Playing ${maxRounds} rounds.`
+      }
+      
+      return gameResult
+    }
+  } catch (error) {
+    console.warn('Interactive game creation failed, falling back to defaults:', error)
+  }
+  
+  // Fallback to regular creation
+  return await createGame(gameType, DEFAULT_PLAYER_NAME, gameId, DEFAULT_AI_DIFFICULTY)
 }

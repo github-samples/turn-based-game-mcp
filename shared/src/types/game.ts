@@ -1,13 +1,13 @@
 // Core game types
-export type PlayerId = 'player1' | 'player2' | 'ai';
+import type { PlayerId, GameStatus, GameType, Difficulty } from '../constants/game-constants'
+
+export type { PlayerId, GameStatus, GameType, Difficulty }
 
 export interface Player {
   id: PlayerId;
   name: string;
   isAI: boolean;
 }
-
-export type GameStatus = 'waiting' | 'playing' | 'finished';
 
 export interface BaseGameState {
   id: string;
@@ -19,7 +19,7 @@ export interface BaseGameState {
   updatedAt: Date;
 }
 
-export interface GameMove<T = any> {
+export interface GameMove<T = unknown> {
   playerId: PlayerId;
   move: T;
   timestamp: Date;
@@ -36,17 +36,13 @@ export interface Game<TGameState extends BaseGameState, TMove> {
   applyMove(gameState: TGameState, move: TMove, playerId: PlayerId): TGameState;
   checkGameEnd(gameState: TGameState): GameResult | null;
   getValidMoves(gameState: TGameState, playerId: PlayerId): TMove[];
-  getInitialState(players: Player[]): TGameState;
+  getInitialState(players: Player[], options?: Record<string, unknown>): TGameState;
 }
-
-export type GameType = 'tic-tac-toe' | 'rock-paper-scissors';
-
-export type Difficulty = 'easy' | 'medium' | 'hard';
 
 // Generic game session for API communication
 export interface GameSession<TGameState extends BaseGameState = BaseGameState> {
   gameState: TGameState;
   gameType: GameType;
   history: GameMove[];
-  aiDifficulty?: Difficulty;
+  difficulty?: Difficulty;
 }

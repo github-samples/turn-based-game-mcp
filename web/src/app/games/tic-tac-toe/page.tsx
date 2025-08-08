@@ -5,7 +5,7 @@ import { TicTacToeBoard } from '../../../components/games/TicTacToeBoard'
 import { GameInfoPanel } from '../../../components/games/GameInfoPanel'
 import { GameContainer, GameControls, ConfirmationModal } from '../../../components/ui'
 import { MCPAssistantPanel } from '../../../components/shared'
-import type { TicTacToeGameState, TicTacToeMove } from '@turn-based-mcp/shared'
+import type { TicTacToeGameState, TicTacToeMove, Difficulty } from '@turn-based-mcp/shared'
 import type { GameSession } from '@turn-based-mcp/shared'
 
 export default function TicTacToePage() {
@@ -16,7 +16,8 @@ export default function TicTacToePage() {
   const [availableGames, setAvailableGames] = useState<GameSession<TicTacToeGameState>[]>([])
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [showJoinForm, setShowJoinForm] = useState(false)
-  const [aiDifficulty, setAiDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium')
+  const [aiDifficulty, setAiDifficulty] = useState<Difficulty>('medium')
+  const [playerSymbol, setPlayerSymbol] = useState<'X' | 'O'>('X')
   const [gamesToShow, setGamesToShow] = useState(5)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [gameToDelete, setGameToDelete] = useState<string | null>(null)
@@ -79,9 +80,10 @@ export default function TicTacToePage() {
     setError(null)
     
     try {
-      const body: { playerName: string; gameId?: string; aiDifficulty: string } = { 
+      const body: { playerName: string; gameId?: string; difficulty: string; playerSymbol: string } = { 
         playerName: 'Player',
-        aiDifficulty 
+        difficulty: aiDifficulty,
+        playerSymbol
       }
       if (customGameId) {
         body.gameId = customGameId
@@ -237,7 +239,7 @@ export default function TicTacToePage() {
       <>
         <GameInfoPanel 
           gameState={gameSession.gameState} 
-          aiDifficulty={gameSession.aiDifficulty} 
+          aiDifficulty={gameSession.difficulty} 
         />
         <MCPAssistantPanel 
           gameState={gameSession.gameState}
@@ -331,11 +333,11 @@ export default function TicTacToePage() {
                           Turn: {game.gameState.currentPlayerId === 'player1' ? 'Player' : 'AI'}
                         </span>
                         <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                          game.aiDifficulty === 'easy' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' :
-                          game.aiDifficulty === 'hard' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' :
+                          game.difficulty === 'easy' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' :
+                          game.difficulty === 'hard' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' :
                           'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300'
                         }`}>
-                          {game.aiDifficulty || 'medium'}
+                          {game.difficulty || 'medium'}
                         </span>
                       </div>
                     </div>
@@ -425,12 +427,25 @@ export default function TicTacToePage() {
                 </label>
                 <select
                   value={aiDifficulty}
-                  onChange={(e) => setAiDifficulty(e.target.value as 'easy' | 'medium' | 'hard')}
+                  onChange={(e) => setAiDifficulty(e.target.value as Difficulty)}
                   className="w-full px-4 py-3 bg-white/60 dark:bg-slate-700/60 border border-slate-200 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
                 >
                   <option value="easy">🟢 Easy - Random moves</option>
                   <option value="medium">🟡 Medium - Strategic play</option>
                   <option value="hard">🔴 Hard - Optimal play (never loses)</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                  Your Symbol
+                </label>
+                <select
+                  value={playerSymbol}
+                  onChange={(e) => setPlayerSymbol(e.target.value as 'X' | 'O')}
+                  className="w-full px-4 py-3 bg-white/60 dark:bg-slate-700/60 border border-slate-200 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                >
+                  <option value="X">❌ X - You go first</option>
+                  <option value="O">⭕ O - AI goes first</option>
                 </select>
               </div>
               <div>

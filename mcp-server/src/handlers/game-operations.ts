@@ -4,26 +4,30 @@
 
 import { TicTacToeAI } from '../ai/tic-tac-toe-ai.js'
 import { RockPaperScissorsAI } from '../ai/rock-paper-scissors-ai.js'
-import { TicTacToeGame, RockPaperScissorsGame } from '@turn-based-mcp/shared'
+import { TicTacToeGame, type TicTacToeGameState, type RPSGameState } from '@turn-based-mcp/shared'
 import { getGameViaAPI, submitMoveViaAPI, createGameViaAPI } from '../utils/http-client.js'
+import { DEFAULT_PLAYER_NAME, DEFAULT_AI_DIFFICULTY } from '@turn-based-mcp/shared'
 
 // Initialize AI and game instances
 const ticTacToeAI = new TicTacToeAI()
 const rpsAI = new RockPaperScissorsAI()
 const ticTacToeGame = new TicTacToeGame()
-const rpsGame = new RockPaperScissorsGame()
+// rpsGame instance not needed directly in this module (AI handles logic)
 
 /**
  * Helper function to read game resource
  */
-export async function readGameResource(gameType: string, gameId: string) {
+type SupportedDifficulty = 'easy' | 'medium' | 'hard'
+interface GameSessionWrapper { gameState: TicTacToeGameState | RPSGameState; difficulty?: SupportedDifficulty; history?: unknown[] }
+export async function readGameResource(gameType: string, gameId: string): Promise<GameSessionWrapper> {
   const uri = `game://${gameType}/${gameId}`
   try {
-    const gameSession = await getGameViaAPI(gameType, gameId)
-    if (!gameSession) {
+  const gameSession = await getGameViaAPI(gameType, gameId)
+  if (!gameSession || !gameSession.gameState) {
       throw new Error(`Game not found: ${uri}`)
     }
-    return gameSession
+  // Cast only after verifying presence
+  return gameSession as unknown as GameSessionWrapper
   } catch (error) {
     throw new Error(`Failed to read game resource ${uri}: ${error}`)
   }
@@ -32,12 +36,12 @@ export async function readGameResource(gameType: string, gameId: string) {
 /**
  * Generic play game function
  */
-export async function playGame(gameType: string, gameId: string) {
+export async function playGame(gameType: string, gameId: string): Promise<Record<string, unknown>> {
   // Get current game state via resource
   const gameSession = await readGameResource(gameType, gameId)
   
   // Use the difficulty stored in the game session, or fall back to medium
-  const difficulty = gameSession.aiDifficulty || 'medium'
+  const difficulty = gameSession.difficulty || 'medium'
   
   // Check if it's AI's turn
   if (gameSession.gameState.currentPlayerId !== 'ai') {
@@ -49,21 +53,23 @@ export async function playGame(gameType: string, gameId: string) {
     throw new Error(`Game is not in playing state. Current status: ${gameSession.gameState.status}`)
   }
   
-  let aiMove: any
+  let aiMove: { row: number; col: number } | { choice: string } | undefined
   let moveDescription: string
   
   // Calculate AI move based on game type
   switch (gameType) {
-    case 'tic-tac-toe':
-      aiMove = await ticTacToeAI.makeMove(gameSession.gameState, difficulty as any)
-      moveDescription = `AI made move at row ${aiMove.row + 1}, col ${aiMove.col + 1}`
+    case 'tic-tac-toe': {
+  const move = await ticTacToeAI.makeMove(gameSession.gameState as TicTacToeGameState, difficulty as SupportedDifficulty)
+      aiMove = move
+      moveDescription = `AI made move at row ${move.row + 1}, col ${move.col + 1}`
       break
-      
-    case 'rock-paper-scissors':
-      const aiChoice = await rpsAI.makeChoice(gameSession.gameState, difficulty as any)
+    }
+    case 'rock-paper-scissors': {
+  const aiChoice = await rpsAI.makeChoice(gameSession.gameState as RPSGameState, difficulty as SupportedDifficulty)
       aiMove = { choice: aiChoice }
       moveDescription = `AI chose ${aiMove.choice}`
       break
+    }
       
     default:
       throw new Error(`Unsupported game type: ${gameType}`)
@@ -73,7 +79,7 @@ export async function playGame(gameType: string, gameId: string) {
   const updatedGameSession = await submitMoveViaAPI(gameType, gameId, aiMove, 'ai')
   
   // Format response based on game type
-  const response: any = {
+  const response: Record<string, unknown> = {
     gameId,
     gameType,
     difficulty,
@@ -87,7 +93,9 @@ export async function playGame(gameType: string, gameId: string) {
   // Add game-specific move details
   switch (gameType) {
     case 'tic-tac-toe':
-      response.aiMove = { row: aiMove.row, col: aiMove.col }
+      if (aiMove && 'row' in aiMove) {
+        response.aiMove = { row: aiMove.row, col: aiMove.col }
+      }
       break
     case 'rock-paper-scissors':
       response.aiMove = aiMove
@@ -105,13 +113,13 @@ export async function playGame(gameType: string, gameId: string) {
 /**
  * Generic analyze game function
  */
-export async function analyzeGame(gameType: string, gameId: string) {
+export async function analyzeGame(gameType: string, gameId: string): Promise<Record<string, unknown>> {
   // Get current game state via resource
   const gameSession = await readGameResource(gameType, gameId)
-  const gameState = gameSession.gameState
+  const gameState = gameSession.gameState as TicTacToeGameState | RPSGameState
   const history = gameSession.history || []
   
-  let analysis: any = {
+  const analysis: { [k: string]: unknown } = {
     gameId,
     gameType,
     status: gameState.status,
@@ -125,20 +133,23 @@ export async function analyzeGame(gameType: string, gameId: string) {
   
   switch (gameType) {
     case 'tic-tac-toe':
-      analysis.boardState = gameState.board
-      analysis.playerSymbols = gameState.playerSymbols
-      analysis.validMoves = gameState.status === 'playing' ? ticTacToeGame.getValidMoves(gameState, gameState.currentPlayerId) : []
+      {
+        const tState = gameState as TicTacToeGameState
+        analysis.boardState = tState.board
+        analysis.playerSymbols = tState.playerSymbols
+        analysis.validMoves = tState.status === 'playing' ? ticTacToeGame.getValidMoves(tState, tState.currentPlayerId) : []
       
       if (gameState.status === 'playing') {
-        analysisText += `Current Turn: ${gameState.currentPlayerId} (${gameState.playerSymbols[gameState.currentPlayerId]})\n`
-        analysisText += `Valid Moves: ${analysis.validMoves.length} available\n`
+  analysisText += `Current Turn: ${tState.currentPlayerId} (${tState.playerSymbols[tState.currentPlayerId]})\n`
+  const validMoves = analysis.validMoves as Array<unknown>
+  analysisText += `Valid Moves: ${validMoves.length} available\n`
         
         // Board visualization
         analysisText += '\nCurrent Board:\n'
         for (let row = 0; row < 3; row++) {
           let rowStr = ''
           for (let col = 0; col < 3; col++) {
-            const cell = gameState.board[row][col]
+            const cell = tState.board[row][col]
             rowStr += cell ? ` ${cell} ` : '   '
             if (col < 2) rowStr += '|'
           }
@@ -146,38 +157,41 @@ export async function analyzeGame(gameType: string, gameId: string) {
           if (row < 2) analysisText += '-----------\n'
         }
         
-        analysisText += gameState.currentPlayerId === 'ai' 
+        analysisText += tState.currentPlayerId === 'ai' 
           ? '\nIt\'s the AI\'s turn to move.' 
           : '\nWaiting for human player to make a move.'
-      } else if (gameState.status === 'finished') {
-        analysisText += `Winner: ${gameState.winner || 'Draw'}\n`
+      } else if (tState.status === 'finished') {
+        analysisText += `Winner: ${tState.winner || 'Draw'}\n`
         analysisText += `Total moves played: ${history.length}\n`
+      }
       }
       break
       
     case 'rock-paper-scissors':
-      analysis.currentRound = gameState.currentRound
-      analysis.maxRounds = gameState.maxRounds
-      analysis.scores = gameState.scores
-      analysis.rounds = gameState.rounds
+      {
+        const rState = gameState as RPSGameState
+        analysis.currentRound = rState.currentRound
+        analysis.maxRounds = rState.maxRounds
+        analysis.scores = rState.scores
+        analysis.rounds = rState.rounds
       
-      analysisText += `Round: ${gameState.currentRound}/${gameState.maxRounds}\n`
-      analysisText += `Scores: Player: ${gameState.scores.player1 || 0}, AI: ${gameState.scores.ai || 0}\n\n`
+        analysisText += `Round: ${rState.currentRound}/${rState.maxRounds}\n`
+        analysisText += `Scores: Player: ${rState.scores.player1 || 0}, AI: ${rState.scores.ai || 0}\n\n`
       
-      if (gameState.status === 'playing') {
-        analysisText += `Current Turn: ${gameState.currentPlayerId}\n`
+        if (rState.status === 'playing') {
+          analysisText += `Current Turn: ${rState.currentPlayerId}\n`
         
-        const currentRoundData = gameState.rounds[gameState.currentRound - 1]
-        if (currentRoundData) {
+          const currentRoundData = rState.rounds[rState.currentRound - 1]
+          if (currentRoundData) {
           const player1HasChoice = !!currentRoundData.player1Choice
           const player2HasChoice = !!currentRoundData.player2Choice
           
           if (player1HasChoice && player2HasChoice) {
-            analysisText += `Round ${gameState.currentRound} Choices:\n`
+            analysisText += `Round ${rState.currentRound} Choices:\n`
             analysisText += `- Player: ${currentRoundData.player1Choice}\n`
             analysisText += `- AI: ${currentRoundData.player2Choice}\n`
           } else {
-            analysisText += `Round ${gameState.currentRound} Status:\n`
+            analysisText += `Round ${rState.currentRound} Status:\n`
             if (player1HasChoice || player2HasChoice) {
               analysisText += `- Some players have made their choices\n`
             } else {
@@ -186,19 +200,20 @@ export async function analyzeGame(gameType: string, gameId: string) {
           }
         }
         
-        analysisText += gameState.currentPlayerId === 'ai'
+          analysisText += rState.currentPlayerId === 'ai'
           ? '\nIt\'s the AI\'s turn to make a choice.'
           : '\nWaiting for human player to make a choice.'
-      } else if (gameState.status === 'finished') {
-        analysisText += `Winner: ${gameState.winner || 'Draw'}\n`
-        analysisText += `Total rounds played: ${gameState.rounds.length}\n`
+        } else if (rState.status === 'finished') {
+          analysisText += `Winner: ${rState.winner || 'Draw'}\n`
+          analysisText += `Total rounds played: ${rState.rounds.length}\n`
         
-        analysisText += `\nRound Results:\n`
-        gameState.rounds.forEach((round: any, index: number) => {
-          if (round.player1Choice && round.player2Choice) {
-            analysisText += `Round ${index + 1}: Player (${round.player1Choice}) vs AI (${round.player2Choice}) - ${round.winner === 'draw' ? 'Draw' : `Winner: ${round.winner}`}\n`
-          }
-        })
+          analysisText += `\nRound Results:\n`
+          rState.rounds.forEach((round, index: number) => {
+            if (round.player1Choice && round.player2Choice) {
+              analysisText += `Round ${index + 1}: Player (${round.player1Choice}) vs AI (${round.player2Choice}) - ${round.winner === 'draw' ? 'Draw' : `Winner: ${round.winner}`}\n`
+            }
+          })
+        }
       }
       break
       
@@ -218,7 +233,7 @@ export async function waitForPlayerMove(
   gameId: string, 
   timeoutSeconds: number = 15, 
   pollInterval: number = 3
-) {
+): Promise<Record<string, unknown>> {
   const gameTypeNames: { [key: string]: string } = {
     'tic-tac-toe': 'Tic-Tac-Toe',
     'rock-paper-scissors': 'Rock Paper Scissors'
@@ -230,7 +245,7 @@ export async function waitForPlayerMove(
   }
   
   // Get initial game state via resource
-  let currentGameSession = await readGameResource(gameType, gameId)
+  const currentGameSession = await readGameResource(gameType, gameId)
   
   // Check if game is finished
   if (currentGameSession.gameState.status === 'finished') {
@@ -316,16 +331,17 @@ export async function waitForPlayerMove(
  */
 export async function createGame(
   gameType: string, 
-  playerName: string = 'Player', 
+  playerName: string = DEFAULT_PLAYER_NAME, 
   gameId?: string, 
-  aiDifficulty: string = 'medium'
-) {
+  difficulty: string = DEFAULT_AI_DIFFICULTY,
+  gameSpecificOptions?: Record<string, unknown>
+): Promise<Record<string, unknown>> {
   // Check if game already exists (for games that support custom IDs)
   if (gameId && gameType === 'tic-tac-toe') {
     try {
       const existingGame = await readGameResource(gameType, gameId)
       if (existingGame) {
-        const response: any = {
+  const response: Record<string, unknown> = {
           gameId,
           gameType,
           message: `Found existing ${gameType} game with ID: ${gameId}`,
@@ -335,16 +351,16 @@ export async function createGame(
         
         return response
       }
-    } catch (error) {
+    } catch {
       // Game doesn't exist, continue with creation
     }
   }
   
   // Create new game via API
-  const gameSession = await createGameViaAPI(gameType, playerName, gameId, aiDifficulty)
+  const gameSession = await createGameViaAPI(gameType, playerName, gameId, difficulty, gameSpecificOptions)
   
-  const response: any = {
-    gameId: gameSession.gameState.id,
+  const response: Record<string, unknown> = {
+  gameId: gameSession.gameState.id as string,
     gameType,
     gameState: gameSession.gameState,
     players: gameSession.gameState.players,

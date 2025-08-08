@@ -8,14 +8,18 @@ const ticTacToeGame = new TicTacToeGame()
 
 export async function POST(request: NextRequest) {
   try {
-    const { playerName, gameId, aiDifficulty } = await request.json()
+    const { playerName, gameId, difficulty, playerSymbol } = await request.json()
     
     const players: Player[] = [
       { id: 'player1', name: playerName || 'Player', isAI: false },
       { id: 'ai', name: 'AI', isAI: true }
     ]
     
-    const gameState = ticTacToeGame.getInitialState(players)
+    const options: { firstPlayerId: string } = {  
+      firstPlayerId: playerSymbol === 'O' ? 'ai' : 'player1'  
+    };  
+    
+    const gameState = ticTacToeGame.getInitialState(players, options)
     
     // Use custom gameId if provided
     if (gameId) {
@@ -26,7 +30,7 @@ export async function POST(request: NextRequest) {
       gameState,
       gameType: 'tic-tac-toe',
       history: [],
-      aiDifficulty: aiDifficulty || 'medium'
+      difficulty: difficulty || 'medium'
     }
     
     await setTicTacToeGame(gameState.id, gameSession)

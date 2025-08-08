@@ -1,7 +1,5 @@
-import type { TicTacToeGameState, TicTacToeMove } from '@turn-based-mcp/shared'
+import type { TicTacToeGameState, TicTacToeMove, Difficulty, PlayerId } from '@turn-based-mcp/shared'
 import { TicTacToeGame } from '@turn-based-mcp/shared'
-
-export type Difficulty = 'easy' | 'medium' | 'hard'
 
 /**
  * AI opponent for Tic-Tac-Toe with configurable difficulty levels
@@ -195,11 +193,11 @@ export class TicTacToeAI {
    * Tests each valid move to see if it results in an immediate win.
    * Used for both finding AI wins and blocking opponent wins.
    */
-  private findWinningMove(gameState: TicTacToeGameState, playerId: string): TicTacToeMove | null {
-    const validMoves = this.game.getValidMoves(gameState, playerId as any)
+  private findWinningMove(gameState: TicTacToeGameState, playerId: PlayerId): TicTacToeMove | null {
+    const validMoves = this.game.getValidMoves(gameState, playerId)
     
     for (const move of validMoves) {
-      const tempGameState = this.game.applyMove(gameState, move, playerId as any)
+  const tempGameState = this.game.applyMove(gameState, move, playerId)
       const result = this.game.checkGameEnd(tempGameState)
       
       if (result && result.winner === playerId) {

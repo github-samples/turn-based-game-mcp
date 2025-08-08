@@ -17,17 +17,24 @@
     "clean": "npm run clean --workspace=shared && npm run clean --workspace=web && npm run clean --workspace=mcp-server",
     "test": "npm run test --workspace=shared && npm run test --workspace=web && npm run test --workspace=mcp-server",
     "test:watch": "npm run test:watch --workspace=shared",
-    "test:coverage": "npm run test:coverage --workspace=shared && npm run test:coverage --workspace=web && npm run test:coverage --workspace=mcp-server"
+    "test:coverage": "npm run test:coverage --workspace=shared && npm run test:coverage --workspace=web && npm run test:coverage --workspace=mcp-server",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+  "lint:all": "npm run lint --workspace=shared && npm run lint --workspace=web && npm run lint --workspace=mcp-server",
+  "ci:tests": "npm run test --workspace=@turn-based-mcp/shared && npm run test --workspace=@turn-based-mcp/web && npm run test --workspace=@turn-based-mcp/mcp-server",
+  "ci": "npm run build --workspace=@turn-based-mcp/shared && npm run type-check && npm run build --workspace=@turn-based-mcp/web && npm run build --workspace=@turn-based-mcp/mcp-server && npm run ci:tests && npm run lint --workspace=@turn-based-mcp/web"
   },
   "devDependencies": {
+    "@eslint/js": "^9.32.0",
     "@testing-library/jest-dom": "^6.6.4",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
-    "@types/jest": "^30.0.0",
-    "@types/node": "^24.1.0",
-    "jest": "^30.0.5",
-    "ts-jest": "^29.4.0",
-    "typescript": "^5.5.0"
+    "@types/node": "^24.2.0",
+    "@vitest/ui": "^3.2.4",
+    "eslint": "^9.32.0",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.39.0",
+    "vitest": "^3.2.4"
   },
   "engines": {
     "node": ">=18.0.0"

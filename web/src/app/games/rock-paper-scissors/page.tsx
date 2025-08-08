@@ -5,7 +5,7 @@ import { RPSGameBoard } from '../../../components/games/RPSGameBoard'
 import { GameInfoPanel } from '../../../components/games/GameInfoPanel'
 import { GameContainer, GameControls, ConfirmationModal } from '../../../components/ui'
 import { MCPAssistantPanel } from '../../../components/shared'
-import type { RPSGameState, RPSMove } from '@turn-based-mcp/shared'
+import type { RPSGameState, RPSMove, Difficulty } from '@turn-based-mcp/shared'
 import type { GameSession } from '@turn-based-mcp/shared'
 
 export default function RockPaperScissorsPage() {
@@ -16,7 +16,8 @@ export default function RockPaperScissorsPage() {
   const [availableGames, setAvailableGames] = useState<GameSession<RPSGameState>[]>([])
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [showJoinForm, setShowJoinForm] = useState(false)
-  const [aiDifficulty, setAiDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium')
+  const [aiDifficulty, setAiDifficulty] = useState<Difficulty>('medium')
+  const [maxRounds, setMaxRounds] = useState<number>(3)
   const [gamesToShow, setGamesToShow] = useState(5)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [gameToDelete, setGameToDelete] = useState<string | null>(null)
@@ -79,9 +80,10 @@ export default function RockPaperScissorsPage() {
     setError(null)
     
     try {
-      const body: { playerName: string; gameId?: string; aiDifficulty: string } = { 
+      const body: { playerName: string; gameId?: string; difficulty: string; maxRounds: number } = { 
         playerName: 'Player',
-        aiDifficulty 
+        difficulty: aiDifficulty,
+        maxRounds 
       }
       if (customGameId) {
         body.gameId = customGameId
@@ -237,7 +239,7 @@ export default function RockPaperScissorsPage() {
       <>
         <GameInfoPanel 
           gameState={gameSession.gameState} 
-          aiDifficulty={gameSession.aiDifficulty} 
+          aiDifficulty={gameSession.difficulty} 
         />
         
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4">
@@ -280,7 +282,7 @@ export default function RockPaperScissorsPage() {
       <>
         <GameContainer
           title="Rock Paper Scissors"
-          description="Best of 3 rounds! Rock beats Scissors, Scissors beats Paper, Paper beats Rock."
+          description={`Play ${gameSession.gameState.maxRounds} round${gameSession.gameState.maxRounds !== 1 ? 's' : ''}! Rock beats Scissors, Scissors beats Paper, Paper beats Rock.`}
           gameBoard={gameBoard}
           sidebar={sidebar}
           error={error}
@@ -342,7 +344,7 @@ export default function RockPaperScissorsPage() {
                       <div className="text-sm text-slate-600 dark:text-slate-300">
                         Round: {game.gameState.currentRound + 1}/{game.gameState.maxRounds} • 
                         Turn: {game.gameState.currentPlayerId === 'player1' ? 'Player' : 'AI'} • 
-                        Difficulty: {game.aiDifficulty || 'medium'}
+                        Difficulty: {game.difficulty || 'medium'}
                       </div>
                     </div>
                   </div>
@@ -431,12 +433,28 @@ export default function RockPaperScissorsPage() {
                 </label>
                 <select
                   value={aiDifficulty}
-                  onChange={(e) => setAiDifficulty(e.target.value as 'easy' | 'medium' | 'hard')}
+                  onChange={(e) => setAiDifficulty(e.target.value as Difficulty)}
                   className="w-full px-4 py-3 bg-white/60 dark:bg-slate-700/60 border border-slate-200 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
                 >
                   <option value="easy">🟢 Easy - Random moves</option>
                   <option value="medium">🟡 Medium - Strategic play</option>
                   <option value="hard">🔴 Hard - Advanced pattern recognition</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                  Number of Rounds
+                </label>
+                <select
+                  value={maxRounds}
+                  onChange={(e) => setMaxRounds(parseInt(e.target.value))}
+                  className="w-full px-4 py-3 bg-white/60 dark:bg-slate-700/60 border border-slate-200 dark:border-slate-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                >
+                  <option value={1}>1 Round</option>
+                  <option value={3}>3 Rounds (Best of 3)</option>
+                  <option value={5}>5 Rounds (Best of 5)</option>
+                  <option value={7}>7 Rounds (Best of 7)</option>
+                  <option value={10}>10 Rounds</option>
                 </select>
               </div>
               <div>
@@ -534,7 +552,7 @@ export default function RockPaperScissorsPage() {
       <>
         <GameContainer
           title="Rock Paper Scissors"
-          description="Best of 3 rounds! Rock beats Scissors, Scissors beats Paper, Paper beats Rock."
+          description={`Play ${maxRounds} round${maxRounds !== 1 ? 's' : ''}! Rock beats Scissors, Scissors beats Paper, Paper beats Rock.`}
           gameBoard={gameSetupContent}
           sidebar={<div></div>} // Empty sidebar for setup
           error={error}

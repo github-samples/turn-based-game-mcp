@@ -1,9 +1,10 @@
+import { vi } from 'vitest'
 import * as mcpApiClient from './mcp-api-client';
 import type { GameSession, Player } from '../types/game';
 import type { TicTacToeGameState, RPSGameState } from '../types/games';
 
 // Mock fetch globally
-const mockFetch = jest.fn() as jest.MockedFunction<typeof fetch>;
+const mockFetch = vi.fn() as any;
 global.fetch = mockFetch;
 
 describe('MCP API Client', () => {
@@ -12,11 +13,11 @@ describe('MCP API Client', () => {
     ok,
     status,
     statusText: ok ? 'OK' : 'Error',
-    json: jest.fn().mockResolvedValue(data)
+    json: vi.fn().mockResolvedValue(data)
   } as any);
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     // Reset environment variables
     process.env = { ...originalEnv };
   });
@@ -63,7 +64,7 @@ describe('MCP API Client', () => {
 
     it('should use custom base URL from environment', async () => {
       // Need to delete the module from cache since environment variable is read at module load time
-      jest.resetModules();
+      vi.resetModules();
       
       process.env.WEB_API_BASE = 'http://custom-host:8080';
       
@@ -89,7 +90,7 @@ describe('MCP API Client', () => {
 
     it('should handle fetch errors gracefully', async () => {
       mockFetch.mockRejectedValue(new Error('Network error'));
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       const result = await mcpApiClient.getTicTacToeGameForMCP('test-game-1');
 
@@ -101,7 +102,7 @@ describe('MCP API Client', () => {
 
     it('should handle HTTP errors gracefully', async () => {
       mockFetch.mockResolvedValue(mockResponse({}, false, 404));
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       const result = await mcpApiClient.getTicTacToeGameForMCP('test-game-1');
 
@@ -168,7 +169,7 @@ describe('MCP API Client', () => {
 
     it('should handle HTTP errors and throw', async () => {
       mockFetch.mockResolvedValue(mockResponse({}, false, 500));
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       await expect(mcpApiClient.createTicTacToeGameForMCP(mockPlayers)).rejects.toThrow();
       expect(consoleSpy).toHaveBeenCalledWith('Error creating tic-tac-toe game via API:', expect.any(Error));
@@ -178,7 +179,7 @@ describe('MCP API Client', () => {
 
     it('should handle network errors and throw', async () => {
       mockFetch.mockRejectedValue(new Error('Network error'));
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       await expect(mcpApiClient.createTicTacToeGameForMCP(mockPlayers)).rejects.toThrow();
       expect(consoleSpy).toHaveBeenCalledWith('Error creating tic-tac-toe game via API:', expect.any(Error));
@@ -229,7 +230,7 @@ describe('MCP API Client', () => {
 
     it('should handle HTTP errors and throw', async () => {
       mockFetch.mockResolvedValue(mockResponse({}, false, 400));
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       await expect(mcpApiClient.makeTicTacToeMove('test-game-1', mockMove, 'player1')).rejects.toThrow();
       expect(consoleSpy).toHaveBeenCalledWith('Error making tic-tac-toe move via API:', expect.any(Error));
@@ -279,7 +280,7 @@ describe('MCP API Client', () => {
 
     it('should handle errors gracefully', async () => {
       mockFetch.mockRejectedValue(new Error('Network error'));
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       const result = await mcpApiClient.getRPSGameForMCP('test-rps-1');
 
@@ -327,7 +328,7 @@ describe('MCP API Client', () => {
 
     it('should handle move errors and throw', async () => {
       mockFetch.mockResolvedValue(mockResponse({}, false, 400));
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       await expect(mcpApiClient.makeRPSMove('test-rps-1', mockMove, 'player1')).rejects.toThrow();
       expect(consoleSpy).toHaveBeenCalledWith('Error making RPS move via API:', expect.any(Error));

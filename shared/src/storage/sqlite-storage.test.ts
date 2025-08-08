@@ -1,27 +1,30 @@
+import { vi } from 'vitest'
 import * as sqliteStorage from './sqlite-storage';
 
 // Mock sqlite3 to prevent actual database operations
-jest.mock('sqlite3', () => ({
-  Database: jest.fn().mockImplementation(() => ({
-    run: jest.fn(function(sql, params, callback) {
-      if (callback) {
-        // Mock the 'this' context with lastID and changes
-        callback.call({ lastID: 1, changes: 1 });
-      }
-    }),
-    get: jest.fn((sql, params, callback) => {
-      if (callback) callback(null, null);
-    }),
-    all: jest.fn((sql, params, callback) => {
-      if (callback) callback(null, []);
-    }),
-    close: jest.fn((callback) => {
-      if (callback) callback();
-    }),
-    serialize: jest.fn((fn) => {
-      if (fn) fn();
-    })
-  }))
+vi.mock('sqlite3', () => ({
+  default: {
+    Database: vi.fn().mockImplementation(() => ({
+      run: vi.fn(function(sql, params, callback) {
+        if (callback) {
+          // Mock the 'this' context with lastID and changes
+          callback.call({ lastID: 1, changes: 1 });
+        }
+      }),
+      get: vi.fn((sql, params, callback) => {
+        if (callback) callback(null, null);
+      }),
+      all: vi.fn((sql, params, callback) => {
+        if (callback) callback(null, []);
+      }),
+      close: vi.fn((callback) => {
+        if (callback) callback();
+      }),
+      serialize: vi.fn((fn) => {
+        if (fn) fn();
+      })
+    }))
+  }
 }));
 
 // Integration-style tests for SQLite storage
@@ -29,12 +32,12 @@ jest.mock('sqlite3', () => ({
 describe('SQLite Storage', () => {
   // Mock console.log to reduce noise during tests
   beforeAll(() => {
-    jest.spyOn(console, 'log').mockImplementation(() => {});
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterAll(async () => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   describe('Module exports', () => {

@@ -4,6 +4,7 @@
  */
 
 import type { Prompt, PromptMessage } from '@modelcontextprotocol/sdk/types.js'
+import { GAME_TYPES, DIFFICULTIES } from '@turn-based-mcp/shared'
 
 export interface PromptDefinition {
   name: string
@@ -13,7 +14,7 @@ export interface PromptDefinition {
     description: string
     required?: boolean
   }>
-  handler: (args?: Record<string, any>) => Promise<{
+  handler: (args?: Record<string, unknown>) => Promise<{
     description?: string
     messages: PromptMessage[]
   }>
@@ -40,7 +41,7 @@ export const GAME_RULES_PROMPTS: PromptDefinition[] = [
 3. How to make moves (using positions 1-9)
 4. All possible winning conditions
 5. Basic strategy tips for beginners
-6. How to use the MCP commands (create_tic_tac_toe_game, play_tic_tac_toe, wait_for_player_move)
+6. How to use the MCP commands (create_game with gameType: 'tic-tac-toe', play_game with gameType: 'tic-tac-toe', wait_for_player_move)
 7. What happens with perfect play
 
 Make it comprehensive but easy to understand for someone who has never played before.`
@@ -66,7 +67,7 @@ Make it comprehensive but easy to understand for someone who has never played be
 3. Strategy tips for beginners and advanced players
 4. How psychology and pattern recognition work in this game
 5. What the different AI difficulty levels mean and how to counter them
-6. How to use the MCP commands (create_rock_paper_scissors_game, play_rock_paper_scissors, wait_for_player_move)
+6. How to use the MCP commands (create_game with gameType: 'rock-paper-scissors', play_game with gameType: 'rock-paper-scissors', wait_for_player_move)
 7. Why unpredictability is key to mastery
 
 Make it comprehensive and include both basic rules and advanced psychological strategies.`
@@ -87,18 +88,18 @@ export const STRATEGY_PROMPTS: PromptDefinition[] = [
     arguments: [
       {
         name: 'gameType',
-        description: 'Game type (tic-tac-toe, rock-paper-scissors)',
+        description: `Game type (${GAME_TYPES?.join(', ') || 'tic-tac-toe, rock-paper-scissors'})`,
         required: false
       },
       {
         name: 'difficulty',
-        description: 'AI difficulty level (easy, medium, hard)',
+        description: `AI difficulty level (${DIFFICULTIES?.join(', ') || 'easy, medium, hard'})`,
         required: false
       }
     ],
-    handler: async (args = {}) => {
-      const gameType = args.gameType?.toLowerCase()
-      const difficulty = args.difficulty?.toLowerCase()
+  handler: async (args: Record<string, unknown> = {}): Promise<{ description: string; messages: PromptMessage[] }> => {
+  const gameType = typeof args.gameType === 'string' ? args.gameType.toLowerCase() : undefined
+  const difficulty = typeof args.difficulty === 'string' ? args.difficulty.toLowerCase() : undefined
 
       let content = `# AI Difficulty Strategy Guide\n\n`
 
@@ -265,7 +266,7 @@ export async function listPrompts(): Promise<{ prompts: Prompt[] }> {
   }
 }
 
-export async function getPrompt(name: string, args?: Record<string, any>) {
+export async function getPrompt(name: string, args?: Record<string, unknown>): Promise<{ description?: string; messages: PromptMessage[] }> {
   const prompt = ALL_PROMPTS.find(p => p.name === name)
   if (!prompt) {
     throw new Error(`Prompt not found: ${name}`)
@@ -296,7 +297,7 @@ function getSpecificStrategyGuide(gameType: string, difficulty: string): string 
 function getGameTypeStrategies(gameType: string): string {
   // Return strategies for all difficulties of a specific game
   return `Please provide comprehensive strategies for ${gameType.toUpperCase()} across all difficulty levels:\n\n` +
-    ['easy', 'medium', 'hard'].map(diff => 
+    DIFFICULTIES.map(diff => 
       `For ${diff.toUpperCase()} difficulty: ${getSpecificStrategyGuide(gameType, diff)}\n`
     ).join('\n')
 }
@@ -304,7 +305,7 @@ function getGameTypeStrategies(gameType: string): string {
 function getDifficultyStrategies(difficulty: string): string {
   // Return strategies for a specific difficulty across all games
   return `Please provide strategies for ${difficulty.toUpperCase()} difficulty across all games:\n\n` +
-    ['tic-tac-toe', 'rock-paper-scissors'].map(game => 
+    GAME_TYPES.map(game => 
       `For ${game.replace(/-/g, ' ').toUpperCase()}: ${getSpecificStrategyGuide(game, difficulty)}\n`
     ).join('\n')
 }

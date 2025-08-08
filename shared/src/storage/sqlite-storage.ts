@@ -1,5 +1,4 @@
 import sqlite3 from 'sqlite3'
-import { promisify } from 'util'
 import path from 'path'
 import type { GameSession } from '../types/game'
 import type { TicTacToeGameState, RPSGameState } from '../types/games'
@@ -11,7 +10,7 @@ let initializationPromise: Promise<sqlite3.Database> | null = null
 // Database file path - store in project root so both web app and MCP server can access
 // Use environment variable if set, otherwise use a path in the current working directory
 // During tests, use an in-memory database for speed and isolation
-const DB_PATH = process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID !== undefined
+const DB_PATH = process.env.NODE_ENV === 'test' || process.env.VITEST !== undefined
   ? ':memory:' 
   : process.env.GAMES_DB_PATH || path.join(process.cwd(), 'games.db')
 

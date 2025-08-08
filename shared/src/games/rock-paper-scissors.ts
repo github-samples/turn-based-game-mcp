@@ -95,7 +95,7 @@ export class RockPaperScissorsGame implements Game<RPSGameState, RPSMove> {
     newRounds[gameState.currentRound] = currentRound;
     
     let newCurrentRound = gameState.currentRound;
-    let newScores = { ...gameState.scores };
+    const newScores = { ...gameState.scores };
     let newCurrentPlayerId = gameState.currentPlayerId;
     
     // If both players have made their choices, resolve the round
@@ -211,18 +211,19 @@ export class RockPaperScissorsGame implements Game<RPSGameState, RPSMove> {
    * Creates the initial game state for a new rock-paper-scissors game
    * 
    * @param players - Array of exactly 2 players
-   * @returns Initial RPSGameState set up for a best-of-3 match
+   * @param options - Optional configuration including maxRounds
+   * @returns Initial RPSGameState set up for a configurable number of rounds
    * 
    * @description
    * Sets up a new game with:
-   * - 3 empty rounds (best-of-3 format)
+   * - Configurable number of rounds (default: 3 for best-of-3 format)
    * - All scores initialized to 0
    * - First player goes first
    * - Game status set to 'playing'
    * - Current round set to 0
    */
-  getInitialState(players: Player[]): RPSGameState {
-    const maxRounds = 3; // Best of 3
+  getInitialState(players: Player[], options?: { maxRounds?: number }): RPSGameState {
+    const maxRounds = options?.maxRounds || 3; // Default to best of 3
     const rounds = Array.from({ length: maxRounds }, () => ({}));
     
     const scores: Record<string, number> = {};

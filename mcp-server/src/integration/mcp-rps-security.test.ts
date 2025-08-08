@@ -1,14 +1,15 @@
+import { vi } from 'vitest'
 import { getRPSGameForMCP, makeRPSMove } from '@turn-based-mcp/shared'
 import type { GameSession } from '@turn-based-mcp/shared'
 import type { RPSGameState, RPSMove } from '@turn-based-mcp/shared'
 
 // Mock fetch for testing
-global.fetch = jest.fn()
-const mockFetch = global.fetch as jest.MockedFunction<typeof fetch>
+global.fetch = vi.fn()
+const mockFetch = global.fetch as vi.MockedFunction<typeof fetch>
 
 describe('MCP Server RPS Security Integration', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     process.env.WEB_API_BASE = 'http://localhost:3000'
   })
 

@@ -2,7 +2,7 @@
   "servers": {
     "turn-based-games": {
       "command": "node",
-      "args": ["dist/index.js"],
+      "args": ["dist/server.js"],
       "cwd": "./mcp-server"
     },
     "playwright": {

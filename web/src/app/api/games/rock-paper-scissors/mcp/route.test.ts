@@ -1,16 +1,17 @@
+import { vi, type MockedFunction } from 'vitest'
 import { GET } from './route'
 import { getAllRPSGames } from '../../../../../lib/game-storage'
 import type { GameSession } from '@turn-based-mcp/shared'
 import type { RPSGameState } from '@turn-based-mcp/shared'
 
 // Mock the game storage
-jest.mock('../../../../../lib/game-storage')
+vi.mock('../../../../../lib/game-storage')
 
-const mockGetAllRPSGames = getAllRPSGames as jest.MockedFunction<typeof getAllRPSGames>
+const mockGetAllRPSGames = getAllRPSGames as MockedFunction<typeof getAllRPSGames>
 
 describe('/api/games/rock-paper-scissors/mcp', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should sanitize current round player choices when round is in progress', async () => {

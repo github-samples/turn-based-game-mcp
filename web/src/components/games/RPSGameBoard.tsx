@@ -108,7 +108,10 @@ export function RPSGameBoard({ gameState, onMove, disabled }: RPSGameBoardProps)
       
       <div className="text-center mb-6">
         <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">
-          Round {gameState.currentRound + 1} of {gameState.maxRounds}
+          {gameState.status === 'finished' ? 
+            `Game Complete (${gameState.currentRound} of ${gameState.maxRounds} rounds played)` :
+            `Round ${gameState.currentRound + 1} of ${gameState.maxRounds}`
+          }
         </h2>
         
         {gameState.status === 'playing' && (

@@ -15,6 +15,37 @@ Follow these TypeScript patterns for consistent, type-safe code:
 - Use barrel exports (`index.ts`) for clean imports
 - Re-export shared types from `@turn-based-mcp/shared`
 
+### Shared Types and Constants
+**Always import types derived from shared constants - don't duplicate union types:**
+
+```typescript
+// ✅ Import types derived from constants
+import type { Difficulty, GameType, PlayerId } from '@turn-based-mcp/shared'
+import { DIFFICULTIES, DEFAULT_AI_DIFFICULTY, GAME_TYPES, PLAYER_IDS } from '@turn-based-mcp/shared'
+
+// ✅ Use the imported types
+const [aiDifficulty, setAiDifficulty] = useState<Difficulty>('medium')
+const playerIds: PlayerId[] = Object.values(PLAYER_IDS)
+
+// ❌ Don't define duplicate union types
+type Difficulty = 'easy' | 'medium' | 'hard'  // This duplicates shared constants!
+type PlayerId = 'player1' | 'player2' | 'ai'  // Use the derived type instead!
+```
+
+**Key principle: Types are derived from constants using `as const` assertions:**
+```typescript
+// In shared/src/constants/game-constants.ts
+export const DIFFICULTIES = ['easy', 'medium', 'hard'] as const
+export type Difficulty = typeof DIFFICULTIES[number]  // 'easy' | 'medium' | 'hard'
+```
+
+**Common types available from shared package:**
+- `Difficulty` - AI difficulty levels (derived from `DIFFICULTIES`) 
+- `GameType` - Supported game types (derived from `GAME_TYPES`)
+- `PlayerId` - Player identifiers (derived from `PLAYER_IDS`)
+- `GameStatus` - Game state values (derived from `GAME_STATUSES`)
+- Game-specific interfaces: `TicTacToeGameState`, `RPSGameState`, etc.
+
 ### Interface Design
 - Use interfaces for object shapes and component props
 - Include JSDoc comments for complex properties

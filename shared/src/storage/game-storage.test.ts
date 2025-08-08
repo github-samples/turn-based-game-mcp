@@ -1,11 +1,12 @@
+import { vi } from 'vitest'
 import * as gameStorage from './game-storage';
 import * as sqliteStorage from './sqlite-storage';
-import type { GameSession, Player } from '../types/game';
+import type { GameSession } from '../types/game';
 import type { TicTacToeGameState, RPSGameState } from '../types/games';
 
 // Mock sqlite-storage module
-jest.mock('./sqlite-storage');
-const mockSqliteStorage = sqliteStorage as jest.Mocked<typeof sqliteStorage>;
+vi.mock('./sqlite-storage');
+const mockSqliteStorage = sqliteStorage as any;
 
 describe('Game Storage', () => {
   const mockTicTacToeGameSession: GameSession<TicTacToeGameState> = {
@@ -57,7 +58,7 @@ describe('Game Storage', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('TicTacToe Game Functions', () => {

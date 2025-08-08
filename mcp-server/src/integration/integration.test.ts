@@ -1,46 +1,56 @@
+import { vi } from 'vitest'
 import { handleToolCall } from '../handlers/tool-handlers.js'
 import { listResources, readResource } from '../handlers/resource-handlers.js'
 import { listPrompts, getPrompt } from '../handlers/prompt-handlers.js'
+import * as httpClient from '../utils/http-client.js'
+
+// Import the real constants from shared package
+// Importing shared constants (some unused intentionally for integration scope) - remove to satisfy lint
+// Removed unused imports
 
 // Mock the web API calls for testing
-jest.mock('../utils/http-client.js', () => ({
-  httpGet: jest.fn(),
-  httpPost: jest.fn(),
-  getGameViaAPI: jest.fn(),
-  createGameViaAPI: jest.fn(),
-  submitMoveViaAPI: jest.fn(),
-  getGamesByType: jest.fn()
+vi.mock('../utils/http-client.js', () => ({
+  httpGet: vi.fn(),
+  httpPost: vi.fn(),
+  getGameViaAPI: vi.fn(),
+  createGameViaAPI: vi.fn(),
+  submitMoveViaAPI: vi.fn(),
+  getGamesByType: vi.fn()
 }))
 
-// Mock shared library
-jest.mock('@turn-based-mcp/shared', () => ({
-  TicTacToeGame: jest.fn(() => ({
-    getValidMoves: jest.fn(() => [{ row: 0, col: 0 }])
-  })),
-  RockPaperScissorsGame: jest.fn(() => ({}))
-}))
+// Mock only the game classes from shared library
+vi.mock('@turn-based-mcp/shared', async (importOriginal) => {
+  const actual = await importOriginal() as any
+  return {
+    ...actual,
+    TicTacToeGame: vi.fn(() => ({
+      getValidMoves: vi.fn(() => [{ row: 0, col: 0 }])
+    })),
+    RockPaperScissorsGame: vi.fn(() => ({}))
+  }
+})
 
 // Mock AI modules
-jest.mock('../ai/tic-tac-toe-ai.js', () => ({
-  TicTacToeAI: jest.fn(() => ({
-    makeMove: jest.fn(() => ({ row: 0, col: 0 }))
+vi.mock('../ai/tic-tac-toe-ai.js', () => ({
+  TicTacToeAI: vi.fn(() => ({
+    makeMove: vi.fn(() => ({ row: 0, col: 0 }))
   }))
 }))
 
-jest.mock('../ai/rock-paper-scissors-ai.js', () => ({
-  RockPaperScissorsAI: jest.fn(() => ({
-    makeChoice: jest.fn(() => 'rock')
+vi.mock('../ai/rock-paper-scissors-ai.js', () => ({
+  RockPaperScissorsAI: vi.fn(() => ({
+    makeChoice: vi.fn(() => 'rock')
   }))
 }))
 
 describe('MCP Server Integration', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe('Resource Handlers', () => {
     it('should list resources correctly', async () => {
-      const mockGetGamesByType = require('../utils/http-client.js').getGamesByType
+      const mockGetGamesByType = vi.mocked(httpClient.getGamesByType)
       mockGetGamesByType.mockResolvedValue([
         {
           gameState: {
@@ -57,20 +67,16 @@ describe('MCP Server Integration', () => {
       expect(result.resources.length).toBeGreaterThan(0)
       
       // Should include game type resources
-      const gameTypeResources = result.resources.filter(r => 
-        r.uri.match(/^game:\/\/[^\/]+$/)
-      )
+  const gameTypeResources = (result.resources as Array<{ uri: string }>).filter(r => r.uri.match(/^game:\/\/[^/]+$/))
       expect(gameTypeResources.length).toBe(2) // tic-tac-toe, rock-paper-scissors
       
       // Should include individual game resources
-      const individualGameResources = result.resources.filter(r => 
-        r.uri.match(/^game:\/\/[^\/]+\/[^\/]+$/)
-      )
+  const individualGameResources = (result.resources as Array<{ uri: string }>).filter(r => r.uri.match(/^game:\/\/[^/]+\/[^/]+$/))
       expect(individualGameResources.length).toBeGreaterThan(0)
     })
 
     it('should read game type resource correctly', async () => {
-      const mockGetGamesByType = require('../utils/http-client.js').getGamesByType
+      const mockGetGamesByType = vi.mocked(httpClient.getGamesByType)
       mockGetGamesByType.mockResolvedValue([
         {
           gameState: {
@@ -79,7 +85,7 @@ describe('MCP Server Integration', () => {
             currentPlayerId: 'player1',
             players: { player1: 'Human', ai: 'AI' }
           },
-          aiDifficulty: 'medium'
+          difficulty: 'medium'
         }
       ])
 
@@ -95,7 +101,7 @@ describe('MCP Server Integration', () => {
     })
 
     it('should read individual game resource correctly', async () => {
-      const mockGetGameViaAPI = require('../utils/http-client.js').getGameViaAPI
+      const mockGetGameViaAPI = vi.mocked(httpClient.getGameViaAPI)
       mockGetGameViaAPI.mockResolvedValue({
         gameState: {
           id: 'test-game-1',
@@ -118,7 +124,7 @@ describe('MCP Server Integration', () => {
 
   describe('Tool Handlers', () => {
     it('should create tic-tac-toe game correctly', async () => {
-      const mockCreateGameViaAPI = require('../utils/http-client.js').createGameViaAPI
+      const mockCreateGameViaAPI = vi.mocked(httpClient.createGameViaAPI)
       mockCreateGameViaAPI.mockResolvedValue({
         gameState: {
           id: 'new-game-id',
@@ -127,18 +133,18 @@ describe('MCP Server Integration', () => {
         }
       })
 
-      const result = await handleToolCall('create_tic_tac_toe_game', {
-        playerName: 'Test Player',
-        aiDifficulty: 'medium'
+      const result = await handleToolCall('create_game', {
+        gameType: 'tic-tac-toe'
       })
       
-      expect(result.gameId).toBe('new-game-id')
-      expect(result.message).toContain('Created new Tic-Tac-Toe game')
+  const created = result as any
+  expect(created.gameId).toBe('new-game-id')
+  expect(created.message).toContain('Created new Tic-Tac-Toe game')
     })
 
     it('should handle play moves correctly', async () => {
-      const mockGetGameViaAPI = require('../utils/http-client.js').getGameViaAPI
-      const mockSubmitMoveViaAPI = require('../utils/http-client.js').submitMoveViaAPI
+      const mockGetGameViaAPI = vi.mocked(httpClient.getGameViaAPI)
+      const mockSubmitMoveViaAPI = vi.mocked(httpClient.submitMoveViaAPI)
       
       mockGetGameViaAPI.mockResolvedValue({
         gameState: {
@@ -146,7 +152,7 @@ describe('MCP Server Integration', () => {
           status: 'playing',
           currentPlayerId: 'ai'
         },
-        aiDifficulty: 'medium'
+        difficulty: 'medium'
       })
       
       mockSubmitMoveViaAPI.mockResolvedValue({
@@ -157,13 +163,15 @@ describe('MCP Server Integration', () => {
         }
       })
 
-      const result = await handleToolCall('play_tic_tac_toe', {
-        gameId: 'test-game'
+      const result = await handleToolCall('play_game', {
+        gameId: 'test-game',
+        gameType: 'tic-tac-toe'
       })
       
-      expect(result.gameId).toBe('test-game')
-      expect(result.aiMove).toBeDefined()
-      expect(result.message).toContain('AI made move')
+  const playResult = result as any
+  expect(playResult.gameId).toBe('test-game')
+  expect(playResult.aiMove).toBeDefined()
+  expect(playResult.message).toContain('AI made move')
     })
 
     it('should handle invalid tool names', async () => {
