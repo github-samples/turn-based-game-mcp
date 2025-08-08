@@ -15,16 +15,9 @@ export async function POST(request: NextRequest) {
       { id: 'ai', name: 'AI', isAI: true }
     ]
     
-    // Determine who goes first based on symbol choice
-    // X always goes first, O goes second
-    let options: { firstPlayerId?: string } | undefined;
-    if (playerSymbol === 'O') {
-      // Player chose O, so AI (who gets X) goes first
-      options = { firstPlayerId: 'ai' };
-    } else {
-      // Player chose X (default) or no preference, so player goes first
-      options = { firstPlayerId: 'player1' };
-    }
+    const options: { firstPlayerId: string } = {  
+      firstPlayerId: playerSymbol === 'O' ? 'ai' : 'player1'  
+    };  
     
     const gameState = ticTacToeGame.getInitialState(players, options)
     

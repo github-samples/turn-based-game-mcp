@@ -189,13 +189,6 @@ async function createGameWithElicitation(gameType: string, gameId?: string, serv
   }
 
   try {
-    // Elicit user preferences
-  const elicitationResult = await elicitGameCreationPreferences(server, gameType, {
-      gameId,
-      playerName: toolArgs?.playerName,
-      difficulty: toolArgs?.difficulty,
-      playerSymbol: toolArgs?.playerSymbol,
-      maxRounds: toolArgs?.maxRounds
   // Validate toolArgs properties before passing them
   const elicitationOptions: Record<string, unknown> = { gameId };
   if (toolArgs) {
