@@ -18,7 +18,6 @@
   },
   "dependencies": {
     "@turn-based-mcp/shared": "file:../shared",
-    "@types/sqlite3": "^5.1.0",
     "clsx": "^2.1.0",
     "next": "^15.4.6",
     "react": "^19.1.1",

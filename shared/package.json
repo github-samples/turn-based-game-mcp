@@ -44,7 +44,6 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
-    "@types/sqlite3": "^5.1.0",
     "sqlite3": "^5.1.7"
   }
 }
