@@ -1,3 +1,5 @@
+[![MSeeP.ai Security Assessment Badge](https://mseep.net/pr/github-samples-turn-based-game-mcp-badge.png)](https://mseep.ai/app/github-samples-turn-based-game-mcp)
+
 # Turn-Based Games Web App and MCP Server
 
 This app is intended as a demo to showcase an example of MCP visually. It is not intended to be a production-ready application, but a learning tool for developers interested in building with the Model Context Protocol (MCP). 
