@@ -3,9 +3,12 @@ applyTo: "shared/src/**/*.{ts,tsx}"
 description: Shared library development patterns for the turn-based games platform
 ---
 
-# Shared Library Instructions
+# Shared Library Development
 
-Follow these patterns when developing the shared library (`@turn-based-mcp/shared`):
+## Purpose
+
+Patterns for the `@turn-based-mcp/shared` package. Covers game implementations, storage abstraction, type system design, and constants.
+
 
 ## Library Architecture
 

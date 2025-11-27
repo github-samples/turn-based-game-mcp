@@ -2,7 +2,7 @@
  * MCP Tool handlers for game operations
  */
 
-import { playGame, analyzeGame, waitForPlayerMove, createGame } from './game-operations.js'
+import { playGame, analyzeGame, waitForPlayerMove, createGame, makePlayerMove } from './game-operations.js'
 import { elicitGameCreationPreferences } from './elicitation-handlers.js'
 import { GAME_TYPES, DIFFICULTIES, isSupportedGameType, DEFAULT_PLAYER_NAME, DEFAULT_AI_DIFFICULTY } from '@turn-based-mcp/shared'
 
@@ -46,8 +46,31 @@ export const TOOL_DEFINITIONS = [
     },
   },
   {
+    name: 'make_player_move',
+    description: 'Make a move on behalf of the human player. Use this when the player tells you their move in chat instead of using the web UI. IMPORTANT: When you later call play_game for the AI move, do NOT consider what move the player made - the AI should calculate its own optimal move independently.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        gameId: {
+          type: 'string',
+          description: 'The ID of the game',
+        },
+        gameType: {
+          type: 'string',
+          enum: GAME_TYPES,
+          description: 'Type of game',
+        },
+        move: {
+          type: 'object',
+          description: 'The move to make. For tic-tac-toe: { row: number, col: number } (0-indexed). For rock-paper-scissors: { choice: "rock" | "paper" | "scissors" }',
+        },
+      },
+      required: ['gameId', 'gameType', 'move'],
+    },
+  },
+  {
     name: 'wait_for_player_move',
-    description: 'Wait for human player to make their move after AI has played. This tool should be called after the play_game tool when the game is still ongoing.',
+    description: 'Wait for human player to make their move via the web UI. If timeout occurs, you can call this again to continue waiting, or ask the player if they want to make their move in chat instead.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -173,6 +196,22 @@ export async function handleToolCall(name: string, args: Record<string, unknown>
           throw new Error(`Unsupported game type: ${genericGameType}`)
         }
         return await createGameWithElicitation(genericGameType, genericGameId, server, args)
+      }
+      case 'make_player_move': {
+        const { gameId, gameType, move } = args as { gameId?: string; gameType?: string; move?: Record<string, unknown> }
+        if (!gameId) {
+          throw new Error('gameId is required')
+        }
+        if (!gameType) {
+          throw new Error('gameType is required')
+        }
+        if (!isSupportedGameType(gameType)) {
+          throw new Error(`Unsupported game type: ${gameType}`)
+        }
+        if (!move) {
+          throw new Error('move is required')
+        }
+        return await makePlayerMove(gameType, gameId, move)
       }
       default:
         throw new Error(`Unknown tool: ${name}`)

@@ -19,6 +19,10 @@ interface GameControlsProps {
   onDelete?: () => void
   /** Whether to show the delete button */
   showDelete?: boolean
+  /** Callback for toggling 3D view */
+  onViewToggle?: () => void
+  /** Whether 3D mode is active */
+  is3DMode?: boolean
   /** Additional custom controls */
   children?: ReactNode
   /** Additional CSS classes */
@@ -41,6 +45,8 @@ export function GameControls({
   showReset = false,
   onDelete,
   showDelete = false,
+  onViewToggle,
+  is3DMode = false,
   children,
   className = ''
 }: GameControlsProps) {
@@ -103,6 +109,23 @@ export function GameControls({
               <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
             </svg>
             Delete Game
+          </button>
+        )}
+
+        {onViewToggle && (
+          <button
+            onClick={onViewToggle}
+            disabled={isLoading}
+            className="group w-full px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-semibold rounded-xl hover:from-purple-600 hover:to-indigo-700 disabled:from-slate-400 disabled:to-slate-500 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center"
+          >
+            <svg className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-200" fill="currentColor" viewBox="0 0 24 24">
+              {is3DMode ? (
+                <path d="M3 3h18v18H3V3zm2 2v14h14V5H5zm2 2h2v2H7V7zm4 0h2v2h-2V7zm4 0h2v2h-2V7zM7 11h2v2H7v-2zm4 0h2v2h-2v-2zm4 0h2v2h-2v-2zM7 15h2v2H7v-2zm4 0h2v2h-2v-2zm4 0h2v2h-2v-2z"/>
+              ) : (
+                <path d="M21 16.5c0 .38-.21.71-.53.88l-7.9 4.44c-.16.12-.36.18-.57.18-.21 0-.41-.06-.57-.18l-7.9-4.44A.991.991 0 013 16.5v-9c0-.38.21-.71.53-.88l7.9-4.44c.16-.12.36-.18.57-.18.21 0 .41.06.57.18l7.9 4.44c.32.17.53.5.53.88v9z"/>
+              )}
+            </svg>
+            {is3DMode ? '2D Grid' : '3D View'}
           </button>
         )}
         

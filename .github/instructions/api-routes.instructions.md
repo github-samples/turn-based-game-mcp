@@ -3,9 +3,12 @@ applyTo: "web/src/app/api/**/*.{ts,js}"
 description: Next.js API route development patterns for the turn-based games platform
 ---
 
-# API Route Instructions
+# Next.js API Routes
 
-Follow these patterns when creating Next.js API routes:
+## Purpose
+
+Patterns for creating API routes in the web package. Covers request handling, game integration, error handling, and security.
+
 
 ## File Structure and Naming
 

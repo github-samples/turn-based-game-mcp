@@ -3,9 +3,12 @@ applyTo: "web/src/components/**/*.{tsx,ts}"
 description: React component development patterns for the turn-based games platform
 ---
 
-# UI Component Instructions
+# React Components
 
-Follow these patterns when creating React components:
+## Purpose
+
+Patterns for React components in the web package. Covers component structure, styling with TailwindCSS, accessibility, and animations.
+
 
 ## Component Structure
 

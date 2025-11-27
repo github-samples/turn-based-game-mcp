@@ -3,9 +3,12 @@ applyTo: "mcp-server/src/**/*.{ts,js}"
 description: MCP server development patterns for the turn-based games platform
 ---
 
-# MCP Server Instructions
+# MCP Server Development
 
-Follow these patterns when developing the Model Context Protocol server:
+## Purpose
+
+Patterns for the Model Context Protocol server. Covers tool definitions, HTTP integration with the web API, AI algorithms, and error handling.
+
 
 ## Server Architecture
 

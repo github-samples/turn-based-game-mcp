@@ -2,13 +2,18 @@
 
 import { useState, useEffect } from 'react'
 import { TicTacToeBoard } from '../../../components/games/TicTacToeBoard'
+import { TicTacToeBoard3D } from '../../../components/games/TicTacToeBoard3D'
 import { GameInfoPanel } from '../../../components/games/GameInfoPanel'
 import { GameContainer, GameControls, ConfirmationModal } from '../../../components/ui'
 import { MCPAssistantPanel } from '../../../components/shared'
 import type { TicTacToeGameState, TicTacToeMove, Difficulty } from '@turn-based-mcp/shared'
 import type { GameSession } from '@turn-based-mcp/shared'
 
-export default function TicTacToePage() {
+interface TicTacToePageProps {
+  initialGameId?: string
+}
+
+export function TicTacToePage({ initialGameId }: TicTacToePageProps) {
   const [gameSession, setGameSession] = useState<GameSession<TicTacToeGameState> | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -22,11 +27,28 @@ export default function TicTacToePage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [gameToDelete, setGameToDelete] = useState<string | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [is3DMode, setIs3DMode] = useState<boolean>(false)
+
+  // Load 3D mode preference from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('ticTacToe_view3D')
+    if (saved !== null) {
+      setIs3DMode(saved === 'true')
+    }
+  }, [])
 
   // Load available games on component mount
   useEffect(() => {
     loadAvailableGames()
   }, [])
+
+  // Auto-join game if initialGameId is provided (from deep link)
+  useEffect(() => {
+    if (initialGameId && !gameSession) {
+      joinExistingGame(initialGameId)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialGameId])
 
   // Poll for game updates when it's the AI's turn
   useEffect(() => {
@@ -225,9 +247,23 @@ export default function TicTacToePage() {
     }
   }
 
+  const handleViewToggle = () => {
+    setIs3DMode(prev => {
+      const newValue = !prev
+      localStorage.setItem('ticTacToe_view3D', String(newValue))
+      return newValue
+    })
+  }
+
   // Render game when session exists
   if (gameSession) {
-    const gameBoard = (
+    const gameBoard = is3DMode ? (
+      <TicTacToeBoard3D
+        gameState={gameSession.gameState}
+        onMove={makeMove}
+        disabled={isLoading || gameSession.gameState.currentPlayerId === 'ai'}
+      />
+    ) : (
       <TicTacToeBoard
         gameState={gameSession.gameState}
         onMove={makeMove}
@@ -256,6 +292,8 @@ export default function TicTacToePage() {
           onNewGame={() => startNewGame()}
           onDelete={() => handleDeleteGame(gameSession.gameState.id)}
           showDelete={true}
+          onViewToggle={handleViewToggle}
+          is3DMode={is3DMode}
         />
       </>
     )
@@ -579,4 +617,8 @@ export default function TicTacToePage() {
       isSetupScreen={true}
     />
   )
+}
+
+export default function Page() {
+  return <TicTacToePage />
 }
