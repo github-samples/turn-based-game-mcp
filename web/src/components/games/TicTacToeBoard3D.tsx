@@ -59,15 +59,17 @@ function Cell({
         />
       </mesh>
 
-      {/* X symbol */}
+      {/* X symbol - two crossed bars lying flat */}
       {value === 'X' && (
-        <group position={[0, 0.3, 0]}>
-          <mesh rotation={[0, Math.PI / 4, 0]}>
-            <cylinderGeometry args={[0.05, 0.05, 1, 8]} />
+        <group position={[0, 0.15, 0]}>
+          {/* First bar of the X - rotated 45 degrees, lying flat */}
+          <mesh rotation={[Math.PI / 2, 0, Math.PI / 4]}>
+            <cylinderGeometry args={[0.06, 0.06, 0.8, 8]} />
             <meshStandardMaterial color="#3b82f6" />
           </mesh>
-          <mesh rotation={[0, -Math.PI / 4, 0]}>
-            <cylinderGeometry args={[0.05, 0.05, 1, 8]} />
+          {/* Second bar of the X - rotated -45 degrees, lying flat */}
+          <mesh rotation={[Math.PI / 2, 0, -Math.PI / 4]}>
+            <cylinderGeometry args={[0.06, 0.06, 0.8, 8]} />
             <meshStandardMaterial color="#3b82f6" />
           </mesh>
         </group>
@@ -75,8 +77,8 @@ function Cell({
 
       {/* O symbol */}
       {value === 'O' && (
-        <mesh position={[0, 0.3, 0]} rotation={[Math.PI / 2, 0, 0]}>
-          <torusGeometry args={[0.35, 0.05, 16, 32]} />
+        <mesh position={[0, 0.15, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[0.35, 0.06, 16, 32]} />
           <meshStandardMaterial color="#ef4444" />
         </mesh>
       )}
