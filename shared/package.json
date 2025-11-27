@@ -41,7 +41,7 @@
     "fix-esm-import-path": "^1.10.3",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.48.0",
-    "vitest": "^3.2.4"
+    "vitest": "^4.0.14"
   },
   "dependencies": {
     "sqlite3": "^5.1.7"

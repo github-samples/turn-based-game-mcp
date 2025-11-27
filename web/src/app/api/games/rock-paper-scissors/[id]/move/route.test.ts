@@ -3,6 +3,7 @@ import { NextRequest } from 'next/server';
 import type { GameSession, RPSGameState, RPSMove } from '@turn-based-mcp/shared';
 
 // Mock dependencies BEFORE importing the route - use factory functions for proper setup
+// In vitest v4, mocks used as constructors must use 'function' syntax
 vi.mock('@turn-based-mcp/shared', () => {
   const mockGame = {
     getInitialState: vi.fn(),
@@ -14,7 +15,7 @@ vi.mock('@turn-based-mcp/shared', () => {
   
   return {
     ...vi.importActual('@turn-based-mcp/shared'),
-    RockPaperScissorsGame: vi.fn(() => mockGame),
+    RockPaperScissorsGame: vi.fn(function() { return mockGame; }),
     __mockGameInstance: mockGame
   };
 });

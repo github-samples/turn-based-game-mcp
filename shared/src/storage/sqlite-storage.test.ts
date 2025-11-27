@@ -2,28 +2,31 @@ import { vi } from 'vitest'
 import * as sqliteStorage from './sqlite-storage';
 
 // Mock sqlite3 to prevent actual database operations
+// In vitest v4, mocks used as constructors must use 'function' or 'class' syntax
 vi.mock('sqlite3', () => ({
   default: {
-    Database: vi.fn().mockImplementation(() => ({
-      run: vi.fn(function(sql, params, callback) {
-        if (callback) {
-          // Mock the 'this' context with lastID and changes
-          callback.call({ lastID: 1, changes: 1 });
-        }
-      }),
-      get: vi.fn((sql, params, callback) => {
-        if (callback) callback(null, null);
-      }),
-      all: vi.fn((sql, params, callback) => {
-        if (callback) callback(null, []);
-      }),
-      close: vi.fn((callback) => {
-        if (callback) callback();
-      }),
-      serialize: vi.fn((fn) => {
-        if (fn) fn();
-      })
-    }))
+    Database: vi.fn(function() {
+      return {
+        run: vi.fn(function(sql: string, params: unknown, callback?: (this: { lastID: number; changes: number }) => void) {
+          if (callback) {
+            // Mock the 'this' context with lastID and changes
+            callback.call({ lastID: 1, changes: 1 });
+          }
+        }),
+        get: vi.fn((sql: string, params: unknown, callback?: (err: Error | null, row: unknown) => void) => {
+          if (callback) callback(null, null);
+        }),
+        all: vi.fn((sql: string, params: unknown, callback?: (err: Error | null, rows: unknown[]) => void) => {
+          if (callback) callback(null, []);
+        }),
+        close: vi.fn((callback?: () => void) => {
+          if (callback) callback();
+        }),
+        serialize: vi.fn((fn?: () => void) => {
+          if (fn) fn();
+        })
+      };
+    })
   }
 }));
 
