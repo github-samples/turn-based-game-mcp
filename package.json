@@ -39,6 +39,6 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "@github/copilot": "^0.0.361"
+    "@github/copilot": "^0.0.365"
   }
 }
