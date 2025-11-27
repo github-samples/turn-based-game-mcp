@@ -377,3 +377,64 @@ export async function createGame(
   
   return response
 }
+
+/**
+ * Make a move on behalf of the human player (when they provide their move via chat)
+ */
+export async function makePlayerMove(
+  gameType: string,
+  gameId: string,
+  move: Record<string, unknown>
+): Promise<Record<string, unknown>> {
+  // Get current game state
+  const gameSession = await readGameResource(gameType, gameId)
+  
+  // Validate it's the player's turn
+  if (gameSession.gameState.currentPlayerId !== 'player1') {
+    throw new Error(`It's not the human player's turn. Current player: ${gameSession.gameState.currentPlayerId}`)
+  }
+  
+  // Check if game is still playing
+  if (gameSession.gameState.status !== 'playing') {
+    throw new Error(`Game is not in playing state. Current status: ${gameSession.gameState.status}`)
+  }
+  
+  // Submit the move via API
+  const updatedGameSession = await submitMoveViaAPI(gameType, gameId, move, 'player1')
+  
+  // Format response based on game type
+  let moveDescription: string
+  switch (gameType) {
+    case 'tic-tac-toe': {
+      const tttMove = move as { row: number; col: number }
+      moveDescription = `Player made move at row ${tttMove.row + 1}, col ${tttMove.col + 1}`
+      break
+    }
+    case 'rock-paper-scissors': {
+      const rpsMove = move as { choice: string }
+      moveDescription = `Player chose ${rpsMove.choice}`
+      break
+    }
+    default:
+      moveDescription = 'Player made their move'
+  }
+  
+  const response: Record<string, unknown> = {
+    gameId,
+    gameType,
+    gameStatus: updatedGameSession.gameState.status,
+    winner: updatedGameSession.gameState.winner || null,
+    currentPlayer: updatedGameSession.gameState.currentPlayerId,
+    message: moveDescription,
+    gameState: updatedGameSession.gameState,
+    playerMove: move
+  }
+  
+  // Add reminder if game is still playing and it's AI's turn
+  if (updatedGameSession.gameState.status === 'playing' && 
+      updatedGameSession.gameState.currentPlayerId === 'ai') {
+    response.message += '. It is now the AI\'s turn. Use play_game to make the AI move.'
+  }
+  
+  return response
+}
