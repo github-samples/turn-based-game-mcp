@@ -1,5 +1,5 @@
 ---
-applyTo: "**/*.test.{ts,tsx,js,jsx}"
+applyTo: "**/{*.test.{ts,tsx,js,jsx},__tests__/**/*.{ts,tsx,js,jsx}}"
 description: Testing guidelines and patterns for the turn-based games platform
 ---
 
@@ -94,3 +94,10 @@ const localMockGameState = { /* duplicated data */ }  // Use shared mocks instea
 - Test loading states and error boundaries
 - Include integration tests for complex workflows
 - Verify all game states (playing, finished, error)
+
+## General Principles
+
+- New features require unit tests
+- Tests should cover edge cases and error conditions
+- Test names should clearly describe what they test
+- Use table-driven tests when testing multiple similar scenarios
