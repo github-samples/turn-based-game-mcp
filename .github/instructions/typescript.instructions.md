@@ -3,9 +3,12 @@ applyTo: "**/*.{ts,tsx}"
 description: TypeScript development patterns and best practices for the turn-based games platform
 ---
 
-# TypeScript Instructions
+# TypeScript Development
 
-Follow these TypeScript patterns for consistent, type-safe code:
+## Purpose
+
+TypeScript patterns for type-safe code. Covers type definitions, generics, error handling, and module organization.
+
 
 ## Type Definitions
 

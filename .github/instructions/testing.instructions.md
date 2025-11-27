@@ -3,9 +3,12 @@ applyTo: "**/{*.test.{ts,tsx,js,jsx},__tests__/**/*.{ts,tsx,js,jsx}}"
 description: Testing guidelines and patterns for the turn-based games platform
 ---
 
-# Testing Instructions
+# Testing Guidelines
 
-Follow these testing patterns for the turn-based games platform:
+## Purpose
+
+Testing patterns and requirements for all packages. Covers test structure, mocking, shared utilities, and coverage requirements.
+
 
 ## Test Structure and Organization
 
