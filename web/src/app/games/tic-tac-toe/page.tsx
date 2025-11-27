@@ -9,7 +9,11 @@ import { MCPAssistantPanel } from '../../../components/shared'
 import type { TicTacToeGameState, TicTacToeMove, Difficulty } from '@turn-based-mcp/shared'
 import type { GameSession } from '@turn-based-mcp/shared'
 
-export default function TicTacToePage() {
+interface TicTacToePageProps {
+  initialGameId?: string
+}
+
+export function TicTacToePage({ initialGameId }: TicTacToePageProps) {
   const [gameSession, setGameSession] = useState<GameSession<TicTacToeGameState> | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -37,6 +41,14 @@ export default function TicTacToePage() {
   useEffect(() => {
     loadAvailableGames()
   }, [])
+
+  // Auto-join game if initialGameId is provided (from deep link)
+  useEffect(() => {
+    if (initialGameId && !gameSession) {
+      joinExistingGame(initialGameId)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialGameId])
 
   // Poll for game updates when it's the AI's turn
   useEffect(() => {
@@ -605,4 +617,8 @@ export default function TicTacToePage() {
       isSetupScreen={true}
     />
   )
+}
+
+export default function Page() {
+  return <TicTacToePage />
 }
