@@ -19,28 +19,36 @@ vi.mock('../utils/http-client.js', () => ({
 }))
 
 // Mock only the game classes from shared library
+// In vitest v4, mocks used as constructors must use 'function' syntax
 vi.mock('@turn-based-mcp/shared', async (importOriginal) => {
   const actual = await importOriginal() as any
   return {
     ...actual,
-    TicTacToeGame: vi.fn(() => ({
-      getValidMoves: vi.fn(() => [{ row: 0, col: 0 }])
-    })),
-    RockPaperScissorsGame: vi.fn(() => ({}))
+    TicTacToeGame: vi.fn(function() {
+      return {
+        getValidMoves: vi.fn(() => [{ row: 0, col: 0 }])
+      }
+    }),
+    RockPaperScissorsGame: vi.fn(function() { return {} })
   }
 })
 
 // Mock AI modules
+// In vitest v4, mocks used as constructors must use 'function' syntax
 vi.mock('../ai/tic-tac-toe-ai.js', () => ({
-  TicTacToeAI: vi.fn(() => ({
-    makeMove: vi.fn(() => ({ row: 0, col: 0 }))
-  }))
+  TicTacToeAI: vi.fn(function() {
+    return {
+      makeMove: vi.fn(() => ({ row: 0, col: 0 }))
+    }
+  })
 }))
 
 vi.mock('../ai/rock-paper-scissors-ai.js', () => ({
-  RockPaperScissorsAI: vi.fn(() => ({
-    makeChoice: vi.fn(() => 'rock')
-  }))
+  RockPaperScissorsAI: vi.fn(function() {
+    return {
+      makeChoice: vi.fn(() => 'rock')
+    }
+  })
 }))
 
 describe('MCP Server Integration', () => {
