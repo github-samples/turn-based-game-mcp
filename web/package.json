@@ -38,17 +38,17 @@
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
-    "@vitest/ui": "^4.0.14",
+    "@vitest/ui": "^4.0.15",
     "eslint": "^9.39.1",
-    "eslint-config-next": "^16.0.5",
+    "eslint-config-next": "^16.0.6",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.1",
     "jsdom": "^27.2.0",
     "postcss": "^8.4.40",
     "tailwindcss": "^4.1.11",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.48.0",
+    "typescript-eslint": "^8.48.1",
     "undici": "^7.16.0",
-    "vitest": "^4.0.14"
+    "vitest": "^4.0.15"
   }
 }
