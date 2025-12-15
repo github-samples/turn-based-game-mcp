@@ -22,9 +22,9 @@
     "@react-three/fiber": "^9.4.2",
     "@turn-based-mcp/shared": "file:../shared",
     "clsx": "^2.1.0",
-    "next": "^16.0.7",
-    "react": "^19.1.1",
-    "react-dom": "^19.2.0",
+    "next": "^16.0.10",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
     "sqlite3": "^5.1.7",
     "tailwind-merge": "^3.3.1",
     "three": "^0.181.2"
