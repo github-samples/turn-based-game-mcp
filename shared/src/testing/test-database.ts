@@ -1,4 +1,4 @@
-import sqlite3 from 'sqlite3'
+import Database from 'better-sqlite3'
 import path from 'path'
 import fs from 'fs'
 
@@ -10,7 +10,7 @@ import fs from 'fs'
  * with clean database state.
  */
 
-let testDb: sqlite3.Database | null = null
+let testDb: Database.Database | null = null
 let originalDbPath: string | undefined
 
 /**
@@ -23,7 +23,7 @@ let originalDbPath: string | undefined
 export async function setupTestDatabase(
   useMemory: boolean = true, 
   testName?: string
-): Promise<sqlite3.Database> {
+): Promise<Database.Database> {
   // Store original DB path to restore later
   originalDbPath = process.env.GAMES_DB_PATH
 
@@ -42,72 +42,28 @@ export async function setupTestDatabase(
     }
   }
 
-  return new Promise((resolve, reject) => {
-    const dbPath = process.env.GAMES_DB_PATH!
-    testDb = new sqlite3.Database(dbPath, (err) => {
-      if (err) {
-        reject(err)
-        return
-      }
+  const dbPath = process.env.GAMES_DB_PATH!
+  testDb = new Database(dbPath)
 
-      // Create tables synchronously to ensure they exist before tests run
-      const createTables = async (): Promise<void> => {
-        try {
-          await createTicTacToeTable()
-          await createRPSTable()
-          resolve(testDb!)
-        } catch (error) {
-          reject(error)
-        }
-      }
+  testDb.exec(`
+    CREATE TABLE IF NOT EXISTS tic_tac_toe_games (
+      id TEXT PRIMARY KEY,
+      game_session TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `)
 
-      createTables()
-    })
-  })
-}
+  testDb.exec(`
+    CREATE TABLE IF NOT EXISTS rps_games (
+      id TEXT PRIMARY KEY,
+      game_session TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `)
 
-/**
- * Creates the tic_tac_toe_games table
- */
-function createTicTacToeTable(): Promise<void> {
-  return new Promise((resolve, reject) => {
-    testDb!.run(`
-      CREATE TABLE IF NOT EXISTS tic_tac_toe_games (
-        id TEXT PRIMARY KEY,
-        game_session TEXT NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-      )
-    `, (err) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve()
-      }
-    })
-  })
-}
-
-/**
- * Creates the rps_games table
- */
-function createRPSTable(): Promise<void> {
-  return new Promise((resolve, reject) => {
-    testDb!.run(`
-      CREATE TABLE IF NOT EXISTS rps_games (
-        id TEXT PRIMARY KEY,
-        game_session TEXT NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-      )
-    `, (err) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve()
-      }
-    })
-  })
+  return testDb
 }
 
 /**
@@ -116,46 +72,33 @@ function createRPSTable(): Promise<void> {
  * @returns Promise that resolves when cleanup is complete
  */
 export async function teardownTestDatabase(): Promise<void> {
-  return new Promise((resolve, reject) => {
-    if (testDb) {
-      testDb.close((err) => {
-        if (err) {
-          reject(err)
-          return
-        }
-
-        // Clean up file-based test database
-        const currentDbPath = process.env.GAMES_DB_PATH
-        if (currentDbPath && currentDbPath !== ':memory:' && fs.existsSync(currentDbPath)) {
-          try {
-            fs.unlinkSync(currentDbPath)
-          } catch (cleanupErr) {
-            console.warn('Failed to cleanup test database file:', cleanupErr)
-          }
-        }
-
-        // Restore original DB path
-        if (originalDbPath !== undefined) {
-          process.env.GAMES_DB_PATH = originalDbPath
-        } else {
-          delete process.env.GAMES_DB_PATH
-        }
-
-        testDb = null
-        originalDbPath = undefined
-        resolve()
-      })
-    } else {
-      // Restore original DB path even if no test database was created
-      if (originalDbPath !== undefined) {
-        process.env.GAMES_DB_PATH = originalDbPath
-      } else {
-        delete process.env.GAMES_DB_PATH
-      }
-      originalDbPath = undefined
-      resolve()
+  if (testDb) {
+    try {
+      testDb.close()
+    } catch {
+      // Ignore close errors during teardown
     }
-  })
+
+    // Clean up file-based test database
+    const currentDbPath = process.env.GAMES_DB_PATH
+    if (currentDbPath && currentDbPath !== ':memory:' && fs.existsSync(currentDbPath)) {
+      try {
+        fs.unlinkSync(currentDbPath)
+      } catch (cleanupErr) {
+        console.warn('Failed to cleanup test database file:', cleanupErr)
+      }
+    }
+
+    testDb = null
+  }
+
+  // Restore original DB path
+  if (originalDbPath !== undefined) {
+    process.env.GAMES_DB_PATH = originalDbPath
+  } else {
+    delete process.env.GAMES_DB_PATH
+  }
+  originalDbPath = undefined
 }
 
 /**
@@ -169,24 +112,8 @@ export async function clearTestDatabase(): Promise<void> {
     throw new Error('Test database not initialized. Call setupTestDatabase first.')
   }
 
-  return new Promise((resolve, reject) => {
-    testDb!.serialize(() => {
-      testDb!.run('DELETE FROM tic_tac_toe_games', (err) => {
-        if (err) {
-          reject(err)
-          return
-        }
-      })
-      
-      testDb!.run('DELETE FROM rps_games', (err) => {
-        if (err) {
-          reject(err)
-          return
-        }
-        resolve()
-      })
-    })
-  })
+  testDb.exec('DELETE FROM tic_tac_toe_games')
+  testDb.exec('DELETE FROM rps_games')
 }
 
 /**
@@ -194,7 +121,7 @@ export async function clearTestDatabase(): Promise<void> {
  * 
  * @returns The current SQLite database instance or null if not initialized
  */
-export function getTestDatabase(): sqlite3.Database | null {
+export function getTestDatabase(): Database.Database | null {
   return testDb
 }
 
