@@ -126,7 +126,7 @@ async function initializeDatabase(): Promise<sqlite3.Database> {
 }
 
 // Helper function to run database queries
-async function runQuery(sql: string, params: any[] = []): Promise<any> {
+async function runQuery(sql: string, params: unknown[] = []): Promise<{ lastID: number | null; changes: number }> {
   try {
     const database = await initializeDatabase()
     if (!database) {
@@ -151,7 +151,7 @@ async function runQuery(sql: string, params: any[] = []): Promise<any> {
 }
 
 // Helper function to get single row
-async function getRow(sql: string, params: any[] = []): Promise<any> {
+async function getRow(sql: string, params: unknown[] = []): Promise<Record<string, unknown> | undefined> {
   try {
     const database = await initializeDatabase()
     if (!database) {
@@ -162,7 +162,7 @@ async function getRow(sql: string, params: any[] = []): Promise<any> {
         if (err) {
           reject(err)
         } else {
-          resolve(row)
+          resolve(row as Record<string, unknown> | undefined)
         }
       })
     })
@@ -176,7 +176,7 @@ async function getRow(sql: string, params: any[] = []): Promise<any> {
 }
 
 // Helper function to get all rows
-async function getAllRows(sql: string, params: any[] = []): Promise<any[]> {
+async function getAllRows(sql: string, params: unknown[] = []): Promise<Record<string, unknown>[]> {
   try {
     const database = await initializeDatabase()
     if (!database) {
@@ -187,7 +187,7 @@ async function getAllRows(sql: string, params: any[] = []): Promise<any[]> {
         if (err) {
           reject(err)
         } else {
-          resolve(rows || [])
+          resolve((rows || []) as Record<string, unknown>[])
         }
       })
     })
@@ -205,7 +205,7 @@ export async function getTicTacToeGame(gameId: string): Promise<GameSession<TicT
   try {
     const row = await getRow('SELECT game_session FROM tic_tac_toe_games WHERE id = ?', [gameId])
     if (row) {
-      return JSON.parse(row.game_session)
+      return JSON.parse(row.game_session as string)
     }
     return undefined
   } catch (error) {
@@ -234,7 +234,7 @@ export async function setTicTacToeGame(gameId: string, gameSession: GameSession<
 export async function getAllTicTacToeGames(): Promise<GameSession<TicTacToeGameState>[]> {
   try {
     const rows = await getAllRows('SELECT game_session FROM tic_tac_toe_games ORDER BY updated_at DESC')
-    return rows.map(row => JSON.parse(row.game_session))
+    return rows.map(row => JSON.parse(row.game_session as string))
   } catch (error) {
     if (process.env.NODE_ENV !== 'test') {
       console.error('Error getting all tic-tac-toe games:', error)
@@ -260,7 +260,7 @@ export async function getRPSGame(gameId: string): Promise<GameSession<RPSGameSta
   try {
     const row = await getRow('SELECT game_session FROM rps_games WHERE id = ?', [gameId])
     if (row) {
-      return JSON.parse(row.game_session)
+      return JSON.parse(row.game_session as string)
     }
     return undefined
   } catch (error) {
@@ -289,7 +289,7 @@ export async function setRPSGame(gameId: string, gameSession: GameSession<RPSGam
 export async function getAllRPSGames(): Promise<GameSession<RPSGameState>[]> {
   try {
     const rows = await getAllRows('SELECT game_session FROM rps_games ORDER BY updated_at DESC')
-    return rows.map(row => JSON.parse(row.game_session))
+    return rows.map(row => JSON.parse(row.game_session as string))
   } catch (error) {
     if (process.env.NODE_ENV !== 'test') {
       console.error('Error getting all RPS games:', error)

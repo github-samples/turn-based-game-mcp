@@ -102,16 +102,16 @@ export function createMockGameSession<T extends BaseGameState>(gameState: T, gam
  * Use this to create consistent mocks across API route tests
  */
 export function createSharedGameMocks(gameClass: string): {
-  mockImplementation: Record<string, unknown>;
+  mockImplementation: () => Promise<Record<string, unknown>>;
   mockGame: ReturnType<typeof createGameMock>;
 } {
   const mockGame = createGameMock()
   
   return {
-    mockImplementation: {
-      ...vi.importActual('@turn-based-mcp/shared'),
+    mockImplementation: async () => ({
+      ...await vi.importActual('@turn-based-mcp/shared/constants'),
       [gameClass]: vi.fn().mockImplementation(() => mockGame)
-    },
+    }),
     mockGame
   }
 }

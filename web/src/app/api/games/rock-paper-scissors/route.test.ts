@@ -14,8 +14,8 @@ const mockGame = vi.hoisted(() => ({
 
 // Mock dependencies BEFORE importing the route
 // In vitest v4, mocks used as constructors must use 'function' syntax
-vi.mock('@turn-based-mcp/shared', () => ({
-  ...vi.importActual('@turn-based-mcp/shared'),
+vi.mock('@turn-based-mcp/shared', async () => ({
+  ...await vi.importActual('@turn-based-mcp/shared/constants'),
   RockPaperScissorsGame: vi.fn(function() { return mockGame; })
 }));
 

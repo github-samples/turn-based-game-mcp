@@ -31,7 +31,7 @@ export function setupAPIRouteMocks(gameType: GameType) {
   const storageMocks = createStorageMocks(gameType)
   
   // Setup vi.mock calls
-  vi.mock('@turn-based-mcp/shared', () => mockImplementation)
+  vi.mock('@turn-based-mcp/shared', mockImplementation)
   vi.mock('../../../../lib/game-storage', () => storageMocks)
   
   return {
@@ -57,8 +57,8 @@ export function setupMoveRouteMocks(gameType: GameType) {
   }
   
   // Setup shared mock
-  vi.mock('@turn-based-mcp/shared', () => ({
-    ...vi.importActual('@turn-based-mcp/shared'),
+  vi.mock('@turn-based-mcp/shared', async () => ({
+    ...await vi.importActual('@turn-based-mcp/shared/constants'),
     [gameClass]: vi.fn(() => mockGame),
     __mockGameInstance: mockGame
   }))

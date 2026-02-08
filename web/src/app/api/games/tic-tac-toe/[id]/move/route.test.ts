@@ -4,7 +4,7 @@ import type { GameSession, TicTacToeGameState, TicTacToeMove } from '@turn-based
 
 // Mock dependencies BEFORE importing the route - use factory functions for proper setup
 // In vitest v4, mocks used as constructors must use 'function' syntax
-vi.mock('@turn-based-mcp/shared', () => {
+vi.mock('@turn-based-mcp/shared', async () => {
   const mockGame = {
     getInitialState: vi.fn(),
     validateMove: vi.fn(),
@@ -14,7 +14,7 @@ vi.mock('@turn-based-mcp/shared', () => {
   };
   
   return {
-    ...vi.importActual('@turn-based-mcp/shared'),
+    ...await vi.importActual('@turn-based-mcp/shared/constants'),
     TicTacToeGame: vi.fn(function() { return mockGame; }),
     getTicTacToeGame: vi.fn(),
     setTicTacToeGame: vi.fn(),
