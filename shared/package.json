@@ -34,6 +34,7 @@
   "devDependencies": {
     "@eslint/js": "^9.39.2",
     "@jest/types": "30.2.0",
+    "@types/better-sqlite3": "^7.6.13",
     "@types/jest": "^30.0.0",
     "@vitest/coverage-v8": "^4.0.18",
     "@vitest/ui": "^4.0.18",
@@ -45,8 +46,5 @@
   },
   "dependencies": {
     "better-sqlite3": "^12.6.2"
-  },
-  "optionalDependencies": {
-    "@types/better-sqlite3": "^7.6.13"
   }
 }
