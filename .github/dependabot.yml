@@ -10,6 +10,9 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 10
     groups:
       actions-minor:
         update-types:
@@ -20,6 +23,12 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 7
+      semver-major-days: 7
+      semver-minor-days: 3
+      semver-patch-days: 2
+    open-pull-requests-limit: 10
     groups:
       npm-development:
         dependency-type: development
