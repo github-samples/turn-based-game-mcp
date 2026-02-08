@@ -25,15 +25,15 @@
     "ci": "npm run build --workspace=@turn-based-mcp/shared && npm run type-check && npm run build --workspace=@turn-based-mcp/web && npm run build --workspace=@turn-based-mcp/mcp-server && npm run ci:tests && npm run lint --workspace=@turn-based-mcp/web"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.1",
+    "@eslint/js": "^9.39.2",
     "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^16.3.0",
+    "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
-    "@vitest/ui": "^4.0.15",
-    "eslint": "^9.39.1",
+    "@vitest/ui": "^4.0.18",
+    "eslint": "^9.39.2",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.48.1",
-    "vitest": "^4.0.15"
+    "typescript-eslint": "^8.54.0",
+    "vitest": "^4.0.18"
   },
   "engines": {
     "node": ">=18.0.0"
