@@ -1,34 +1,24 @@
 import { vi } from 'vitest'
 import * as sqliteStorage from './sqlite-storage';
 
-// Mock sqlite3 to prevent actual database operations
+// Mock better-sqlite3 to prevent actual database operations
 // In vitest v4, mocks used as constructors must use 'function' or 'class' syntax
-vi.mock('sqlite3', () => ({
-  default: {
-    Database: vi.fn(function() {
+vi.mock('better-sqlite3', () => {
+  const mockStatement = {
+    run: vi.fn(() => ({ lastInsertRowid: 1, changes: 1 })),
+    get: vi.fn(() => undefined),
+    all: vi.fn(() => []),
+  }
+  return {
+    default: vi.fn(function() {
       return {
-        run: vi.fn(function(sql: string, params: unknown, callback?: (this: { lastID: number; changes: number }) => void) {
-          if (callback) {
-            // Mock the 'this' context with lastID and changes
-            callback.call({ lastID: 1, changes: 1 });
-          }
-        }),
-        get: vi.fn((sql: string, params: unknown, callback?: (err: Error | null, row: unknown) => void) => {
-          if (callback) callback(null, null);
-        }),
-        all: vi.fn((sql: string, params: unknown, callback?: (err: Error | null, rows: unknown[]) => void) => {
-          if (callback) callback(null, []);
-        }),
-        close: vi.fn((callback?: () => void) => {
-          if (callback) callback();
-        }),
-        serialize: vi.fn((fn?: () => void) => {
-          if (fn) fn();
-        })
-      };
+        prepare: vi.fn(() => mockStatement),
+        exec: vi.fn(),
+        close: vi.fn(),
+      }
     })
   }
-}));
+});
 
 // Integration-style tests for SQLite storage
 // These tests verify the public API without heavy mocking
