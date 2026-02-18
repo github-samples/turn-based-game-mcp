@@ -22,7 +22,7 @@
     "@turn-based-mcp/shared": "file:../shared"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.2",
+    "@eslint/js": "^10.0.1",
     "@vitest/ui": "^4.0.18",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.54.0",
