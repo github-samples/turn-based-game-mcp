@@ -38,7 +38,7 @@
     "@types/jest": "^30.0.0",
     "@vitest/coverage-v8": "^4.0.18",
     "@vitest/ui": "^4.0.18",
-    "eslint": "^9.39.2",
+    "eslint": "^10.0.0",
     "fix-esm-import-path": "^1.10.3",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.54.0",
